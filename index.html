@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexusVault — Efikcoin Eternal Ecosystem</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#D4AF37;--gl:#F0D060;--gd:#9B7D20;
+  --deep:#080C14;--surf:#0D1420;--card:#111827;--card2:#161E2E;
+  --b1:rgba(212,175,55,.18);--b2:rgba(212,175,55,.4);
+  --tx:#E8E8F0;--mu:#8899AA;
+  --gr:#22C55E;--rd:#EF4444;--bl:#3B82F6;--pu:#8B5CF6;--cy:#06B6D4;--or:#F59E0B;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Space Grotesk',sans-serif;background:var(--deep);color:var(--tx);overflow-x:hidden;line-height:1.6}
+/* ── ANIMATIONS ── */
+@keyframes twinkle{0%{opacity:.1;transform:scale(1)}100%{opacity:.9;transform:scale(1.7)}}
+@keyframes pfloat{0%{opacity:0;transform:translateY(100vh) scale(0)}15%{opacity:.5}85%{opacity:.1}100%{opacity:0;transform:translateY(-60px) translateX(var(--dx,30px)) scale(1)}}
+@keyframes fsd{from{opacity:0;transform:translateY(-22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fsu{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes min{from{opacity:0;transform:scale(.88) translateY(18px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(1.55)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spnr{to{transform:rotate(-360deg)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes warnbg{0%,100%{background:rgba(239,68,68,.07)}50%{background:rgba(239,68,68,.16)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 rgba(212,175,55,0)}50%{box-shadow:0 0 22px rgba(212,175,55,.28)}}
+@keyframes slidein{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes countup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* ── STARFIELD ── */
+.sf{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at 18% 55%,rgba(212,175,55,.05) 0%,transparent 58%),
+             radial-gradient(ellipse at 82% 18%,rgba(59,130,246,.04) 0%,transparent 52%),var(--deep)}
+.st{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d,3s) infinite alternate}
+.pp{position:fixed;width:3px;height:3px;border-radius:50%;background:var(--gold);pointer-events:none;z-index:0;opacity:0;animation:pfloat var(--dur,9s) var(--del,0s) infinite ease-in-out}
+/* ── NAV ── */
+nav{position:fixed;top:0;width:100%;z-index:1000;padding:.75rem 1.8rem;display:flex;align-items:center;justify-content:space-between;background:rgba(8,12,20,.93);backdrop-filter:blur(22px);border-bottom:1px solid var(--b1)}
+.nlogo{font-family:'Orbitron',monospace;font-size:1.25rem;font-weight:900;color:var(--gold);letter-spacing:2px;text-shadow:0 0 18px rgba(212,175,55,.5)}
+.nlogo span{color:var(--tx)}
+.nlinks{display:flex;gap:1.3rem;align-items:center;flex-wrap:wrap}
+.nlinks a{color:var(--mu);text-decoration:none;font-size:.8rem;font-weight:500;transition:color .2s}
+.nlinks a:hover{color:var(--gold)}
+.lsw{display:flex;gap:3px;padding:3px;background:var(--card);border:1px solid var(--b1);border-radius:7px}
+.lb{padding:4px 8px;border:none;border-radius:5px;cursor:pointer;font-size:.7rem;font-weight:700;font-family:'Space Grotesk',sans-serif;background:transparent;color:var(--mu);transition:all .2s}
+.lb.active{background:var(--gold);color:#000}
+.bnav{padding:8px 17px;background:var(--gold);color:#000;border:none;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .2s}
+.bnav:hover{background:var(--gl);transform:translateY(-1px)}
+/* ── CAUTION BANNER ── */
+.cbanner{position:relative;z-index:90;margin-top:60px;padding:.8rem 1.8rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;justify-content:center;animation:warnbg 3s infinite;border-bottom:2px solid rgba(239,68,68,.45)}
+.ci{font-size:1.3rem;animation:float 2s ease-in-out infinite;flex-shrink:0}
+.ct{font-size:.82rem;color:#FCA5A5;font-weight:500;text-align:center}
+.ct strong{color:#EF4444;font-size:.88rem}
+.clinks{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.cl{padding:5px 13px;border-radius:8px;font-size:.76rem;font-weight:700;text-decoration:none;transition:all .2s;display:flex;align-items:center;gap:5px}
+.cl.tg{background:rgba(37,211,102,.14);color:#25d366;border:1px solid rgba(37,211,102,.3)}
+.cl.em{background:rgba(59,130,246,.14);color:#93C5FD;border:1px solid rgba(59,130,246,.3)}
+.cl:hover{opacity:.75}
+/* ── TICKER ── */
+.tickwrap{position:relative;z-index:2;width:100%;overflow:hidden;background:var(--card);border-bottom:1px solid var(--b1);padding:9px 0}
+.tickrow{display:flex;gap:2.4rem;width:max-content;animation:ticker 30s linear infinite}
+.tickrow:hover{animation-play-state:paused}
+.ti{display:flex;align-items:center;gap:7px;white-space:nowrap;font-family:'Space Mono',monospace;font-size:.76rem}
+.ts{color:var(--gold);font-weight:700}.tp{color:var(--tx)}.tup{color:var(--gr)}.tdn{color:var(--rd)}
+/* ── HERO ── */
+.hero{min-height:90vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem 4rem;flex-direction:column;position:relative;z-index:1}
+.hbadge{display:inline-flex;align-items:center;gap:8px;padding:5px 16px;border:1px solid var(--b2);border-radius:50px;font-size:.76rem;color:var(--gold);font-family:'Space Mono',monospace;margin-bottom:1.4rem;animation:fsd .8s ease both}
+.ldot{width:7px;height:7px;border-radius:50%;background:var(--gr);animation:pulse 2s infinite;flex-shrink:0}
+h1.ht{font-family:'Orbitron',monospace;font-size:clamp(2rem,5vw,4.2rem);font-weight:900;line-height:1.05;margin-bottom:1.4rem;animation:fsu 1s ease .2s both}
+h1.ht .gold{color:var(--gold);display:block;text-shadow:0 0 38px rgba(212,175,55,.38)}
+.hsub{font-size:1.05rem;color:var(--mu);max-width:540px;margin:0 auto 2.2rem;animation:fsu 1s ease .4s both}
+.hcta{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;animation:fsu 1s ease .6s both}
+.bprimary{padding:13px 28px;background:var(--gold);color:#000;border:none;border-radius:10px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.92rem;cursor:pointer;transition:all .25s}
+.bprimary:hover{background:var(--gl);transform:translateY(-2px);box-shadow:0 8px 26px rgba(212,175,55,.38)}
+.boutline{padding:13px 28px;background:transparent;color:var(--tx);border:1px solid var(--b2);border-radius:10px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.92rem;cursor:pointer;transition:all .25s}
+.boutline:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px)}
+.sbar{display:flex;gap:2.2rem;justify-content:center;flex-wrap:wrap;margin-top:2.8rem;animation:fsu 1s ease .8s both}
+.si{text-align:center}
+.sn{font-family:'Orbitron',monospace;font-size:1.6rem;font-weight:700;color:var(--gold);display:block}
+.sl{font-size:.7rem;color:var(--mu);text-transform:uppercase;letter-spacing:1px}
+/* ── NETWORK COINS ── */
+.nstrip{padding:2.2rem 2rem;background:var(--surf);border-top:1px solid var(--b1);border-bottom:1px solid var(--b1);position:relative;z-index:1}
+.nsinner{max-width:1100px;margin:0 auto;text-align:center}
+.nstitle{font-size:.72rem;color:var(--mu);text-transform:uppercase;letter-spacing:2px;margin-bottom:1.4rem;font-family:'Space Mono',monospace}
+.ccoins{display:flex;justify-content:center;align-items:center;gap:1.6rem;flex-wrap:wrap}
+.cbadge{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:default;transition:transform .2s}
+.cbadge:hover{transform:translateY(-5px)}
+.cico{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.45rem;border:2px solid transparent;transition:all .3s;animation:float 3s ease-in-out infinite}
+.cico:hover{border-color:var(--gold)}
+.cname{font-size:.68rem;color:var(--mu);font-family:'Space Mono',monospace;font-weight:700;letter-spacing:1px}
+.cprice{font-size:.66rem;color:var(--tx);font-family:'Space Mono',monospace}
+.cchg{font-size:.63rem;font-weight:700}
+.cup{color:var(--gr)}.cdn{color:var(--rd)}
+/* ── SECTION HELPERS ── */
+.sec{position:relative;z-index:1}
+.shead{text-align:center;margin-bottom:2.8rem}
+.ey{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:.7rem;display:block}
+h2.stitle{font-family:'Orbitron',monospace;font-size:clamp(1.4rem,2.8vw,2.1rem);font-weight:700;line-height:1.2}
+h2.stitle span{color:var(--gold)}
+.ssub{color:var(--mu);margin-top:.7rem;max-width:480px;margin-left:auto;margin-right:auto;font-size:.88rem}
+/* ── PLANS ── */
+.plsec{padding:4.5rem 2rem;max-width:1200px;margin:0 auto}
+.plgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:1.3rem}
+.pc{background:var(--card);border:1px solid var(--b1);border-radius:15px;padding:1.7rem;position:relative;overflow:hidden;transition:all .3s;cursor:pointer;animation:glow 4s infinite}
+.pc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ac,var(--gold))}
+.pc:hover{transform:translateY(-5px);border-color:var(--ac,var(--gold));box-shadow:0 18px 46px rgba(0,0,0,.5)}
+.pc.feat{border-color:var(--gold)}
+.pbadge{display:inline-block;padding:3px 10px;border-radius:50px;font-size:.66rem;font-weight:700;margin-bottom:.8rem;background:rgba(212,175,55,.1);color:var(--gold);letter-spacing:1px;text-transform:uppercase}
+.pbadge.hot{background:rgba(239,68,68,.1);color:var(--rd)}
+.pname{font-family:'Orbitron',monospace;font-size:.95rem;font-weight:700;margin-bottom:.35rem}
+.papy{font-family:'Orbitron',monospace;font-size:2.5rem;font-weight:900;color:var(--ac,var(--gold));line-height:1;margin-bottom:.18rem}
+.papy-l{font-size:.72rem;color:var(--mu);margin-bottom:1.2rem}
+.pf{list-style:none;margin-bottom:1.3rem}
+.pf li{padding:5px 0;font-size:.82rem;color:var(--mu);display:flex;align-items:center;gap:7px;border-bottom:1px solid rgba(255,255,255,.03)}
+.pf li::before{content:'✓';color:var(--gr);font-weight:700;flex-shrink:0}
+.pbtn{width:100%;padding:10px;border-radius:9px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;border:1px solid var(--ac,var(--gold));background:transparent;color:var(--tx)}
+.pbtn:hover,.pbtn.filled{background:var(--ac,var(--gold));color:#000;border-color:var(--ac,var(--gold))}
+/* ── ROI ── */
+.roisec{padding:4.5rem 2rem;max-width:1200px;margin:0 auto}
+.roicard{background:var(--card);border:1px solid var(--b1);border-radius:18px;padding:2.2rem;display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:center}
+@media(max-width:720px){.roicard{grid-template-columns:1fr}}
+.roires{background:var(--surf);border-radius:14px;padding:1.8rem;text-align:center}
+.roibig{font-family:'Orbitron',monospace;font-size:2.3rem;font-weight:900;color:var(--gr)}
+.rg{margin-bottom:1.3rem}
+.rl{display:flex;justify-content:space-between;font-size:.78rem;color:var(--mu);margin-bottom:5px}
+.rv{color:var(--gold);font-family:'Space Mono',monospace;font-weight:700}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;border-radius:4px;background:var(--b1);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--gold);border:2px solid var(--deep);cursor:pointer}
+/* ── PROOF ── */
+.proofsec{padding:4.5rem 2rem;background:var(--surf)}
+.proofin{max-width:1200px;margin:0 auto}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(295px,1fr));gap:1.4rem;margin-top:2.2rem}
+.pcard{background:var(--card);border:1px solid var(--b1);border-radius:14px;overflow:hidden;transition:all .3s}
+.pcard:hover{transform:scale(1.02);border-color:var(--b2)}
+.pimg{width:100%;height:185px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;background:var(--card2)}
+.pbody{padding:1.1rem}
+.pusr{display:flex;align-items:center;gap:9px;margin-bottom:.65rem}
+.pavt{width:35px;height:35px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#000;flex-shrink:0}
+.pun{font-weight:600;font-size:.85rem}.ph{font-size:.7rem;color:var(--mu)}
+.ptxt{font-size:.8rem;color:var(--mu);line-height:1.5}
+.pamt{font-family:'Orbitron',monospace;font-size:1rem;color:var(--gr);font-weight:700;margin-top:.45rem}
+/* ── CHARITY ── */
+.chsec{padding:4.5rem 2rem;max-width:1200px;margin:0 auto}
+.chgrid{display:grid;grid-template-columns:1fr 1fr;gap:2.8rem;align-items:center}
+@media(max-width:720px){.chgrid{grid-template-columns:1fr}}
+.chvis{border-radius:18px;overflow:hidden;border:1px solid var(--b1);padding:2rem;min-height:320px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(212,175,55,.06),rgba(6,182,212,.03))}
+.chring{width:195px;height:195px;border-radius:50%;border:9px solid transparent;position:relative;display:flex;align-items:center;justify-content:center;animation:spin 17s linear infinite}
+.chring::before{content:'';position:absolute;inset:-9px;border-radius:50%;border:9px solid transparent;border-top-color:var(--gold);border-right-color:var(--cy);border-bottom-color:var(--pu);border-left-color:var(--gr)}
+.chctr{position:absolute;width:142px;height:142px;border-radius:50%;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:spnr 17s linear infinite}
+.iitems{display:grid;gap:.85rem;margin-top:1.6rem}
+.iitem{display:flex;align-items:center;gap:.85rem;padding:.85rem 1rem;background:var(--card);border:1px solid var(--b1);border-radius:12px;transition:all .2s}
+.iitem:hover{border-color:var(--b2);transform:translateX(4px)}
+.iico{width:40px;height:40px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.iin h4{font-size:.88rem;font-weight:600;margin-bottom:1px}
+.iin p{font-size:.76rem;color:var(--mu)}
+/* ── DASHBOARD ── */
+.dash{padding:4.5rem 2rem;background:var(--surf);display:none}
+.dash.show{display:block}
+.din{max-width:1200px;margin:0 auto}
+.dhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.8rem;flex-wrap:wrap;gap:1rem}
+.dgrt h2{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:700}
+.dgrt p{color:var(--mu);font-size:.8rem;margin-top:2px}
+.wbadge{display:flex;align-items:center;gap:7px;padding:6px 13px;background:var(--card);border:1px solid var(--b1);border-radius:50px;font-family:'Space Mono',monospace;font-size:.7rem;color:var(--gold)}
+.wdot{width:6px;height:6px;border-radius:50%;background:var(--gr);flex-shrink:0;animation:pulse 2s infinite}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem;margin-bottom:1.4rem}
+.mc{background:var(--card);border:1px solid var(--b1);border-radius:13px;padding:1.3rem;transition:all .2s}
+.mc:hover{border-color:var(--b2)}
+.mlbl{font-size:.72rem;color:var(--mu);letter-spacing:.5px;margin-bottom:.65rem;text-transform:uppercase}
+.mv{font-family:'Orbitron',monospace;font-size:1.45rem;font-weight:700;color:var(--tx)}
+.mv.g{color:var(--gr)}
+.msub{font-size:.72rem;color:var(--mu);margin-top:2px}
+.mch{font-size:.73rem;margin-top:2px;font-weight:600}
+.mch.up{color:var(--gr)}.mch.dn{color:var(--rd)}
+.mbar{height:36px;display:flex;align-items:flex-end;gap:2px;margin-top:9px}
+.mb{flex:1;border-radius:3px 3px 0 0;opacity:.55;transition:opacity .2s;min-height:3px}
+.mb:hover{opacity:1}
+/* ── WALLET ADDRESS DISPLAY ── */
+.waddrbox{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(212,175,55,.03));border:1px solid var(--b2);border-radius:14px;padding:1.4rem;margin-bottom:1.4rem;text-align:center}
+.waddr-label{font-size:.72rem;color:var(--mu);letter-spacing:1px;text-transform:uppercase;margin-bottom:.6rem}
+.waddr-full{font-family:'Space Mono',monospace;font-size:.82rem;color:var(--gold);word-break:break-all;line-height:1.8;padding:.8rem 1rem;background:var(--surf);border:1px dashed var(--b2);border-radius:9px;position:relative;cursor:pointer;transition:all .2s;margin-bottom:.5rem}
+.waddr-full:hover{background:rgba(212,175,55,.06)}
+.waddr-net{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:rgba(240,185,11,.1);border:1px solid rgba(240,185,11,.25);border-radius:50px;font-size:.68rem;color:#F0B90B;font-weight:700;font-family:'Space Mono',monospace;margin-top:.4rem}
+/* ── DASH TABS ── */
+.dtabs{display:flex;gap:0;margin-bottom:1.4rem;background:var(--card);border:1px solid var(--b1);border-radius:11px;padding:4px;overflow-x:auto}
+.dtab{flex:1;padding:9px 14px;border:none;border-radius:8px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.8rem;background:transparent;color:var(--mu);transition:all .2s;white-space:nowrap;min-width:max-content}
+.dtab.active{background:var(--gold);color:#000}
+/* ── DEPOSIT PANEL ── */
+.depp{background:var(--card);border:1px solid var(--b1);border-radius:15px;overflow:hidden}
+.depwarn{padding:1.1rem 1.4rem;display:flex;align-items:flex-start;gap:11px;animation:warnbg 3s infinite;border-bottom:1px solid rgba(239,68,68,.3)}
+.depwi{font-size:1.4rem;flex-shrink:0}
+.depwt{font-size:.82rem;color:#FCA5A5;line-height:1.6}
+.depwt strong{color:#EF4444;display:block;font-size:.86rem;margin-bottom:3px}
+.depbody{padding:1.6rem}
+.daddrbox{background:var(--surf);border:2px dashed var(--gold);border-radius:12px;padding:1.2rem;margin:1.1rem 0;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.daddrbox::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(212,175,55,.07),transparent);background-size:200% 100%;animation:shimmer 2.5s infinite}
+.daddrbox:hover{border-color:var(--gl);background:rgba(212,175,55,.04)}
+.daddr{font-family:'Space Mono',monospace;font-size:.76rem;color:var(--gold);word-break:break-all;line-height:1.8;margin-bottom:5px;font-weight:700}
+.dcopyhint{font-size:.68rem;color:var(--mu)}
+.bnbbadge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;background:rgba(240,185,11,.1);border:1px solid rgba(240,185,11,.25);border-radius:50px;font-size:.7rem;color:#F0B90B;font-weight:700;margin-bottom:.9rem;font-family:'Space Mono',monospace}
+.bnbnote{display:flex;align-items:center;gap:8px;padding:9px 13px;background:rgba(240,185,11,.05);border:1px solid rgba(240,185,11,.18);border-radius:9px;font-size:.78rem;color:#F0B90B;margin-bottom:.9rem}
+.steps{list-style:none;counter-reset:st}
+.steps li{counter-increment:st;padding:.65rem 0;display:flex;align-items:flex-start;gap:11px;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem;color:var(--mu)}
+.steps li::before{content:counter(st);min-width:22px;height:22px;border-radius:50%;background:rgba(212,175,55,.13);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;font-family:'Space Mono',monospace;margin-top:1px}
+.crow{display:flex;gap:9px;margin-top:1.1rem;flex-wrap:wrap}
+.cbtn{flex:1;padding:10px 13px;border-radius:9px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .2s;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:7px;border:none;min-width:130px}
+.cbtn.tg{background:rgba(37,211,102,.1);color:#25d366;border:1px solid rgba(37,211,102,.28)}
+.cbtn.tg:hover{background:rgba(37,211,102,.2)}
+.cbtn.em{background:rgba(59,130,246,.1);color:#93C5FD;border:1px solid rgba(59,130,246,.28)}
+.cbtn.em:hover{background:rgba(59,130,246,.2)}
+/* ── WITHDRAWAL PANEL ── */
+.withp{background:var(--card);border:1px solid var(--b1);border-radius:15px;padding:1.7rem}
+.winfo{display:flex;gap:.9rem;margin-bottom:1.4rem;flex-wrap:wrap}
+.wic{flex:1;min-width:130px;background:var(--surf);border:1px solid var(--b1);border-radius:11px;padding:.9rem;text-align:center}
+.wiv{font-family:'Orbitron',monospace;font-size:1.15rem;font-weight:700;color:var(--gr)}
+.wil{font-size:.7rem;color:var(--mu);margin-top:3px}
+/* ── FORMS ── */
+.fg{margin-bottom:1rem}
+.fl{font-size:.76rem;color:var(--mu);font-weight:500;margin-bottom:5px;display:block;letter-spacing:.4px}
+.fi{width:100%;padding:10px 12px;background:var(--surf);border:1px solid var(--b1);border-radius:9px;color:var(--tx);font-family:'Space Grotesk',sans-serif;font-size:.86rem;transition:border .2s;outline:none}
+.fi:focus{border-color:var(--gold)}
+.fi::placeholder{color:var(--mu);opacity:.7}
+select.fi{cursor:pointer}
+.bfull{width:100%;padding:12px;background:var(--gold);color:#000;border:none;border-radius:9px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .2s;margin-top:.4rem}
+.bfull:hover{background:var(--gl)}
+.bfull:disabled{background:var(--mu);cursor:not-allowed;color:var(--deep)}
+.wnote{font-size:.76rem;color:var(--mu);margin-top:.75rem;padding:.75rem;background:rgba(255,255,255,.03);border-radius:8px;border-left:3px solid var(--gold)}
+/* ── ACTIVITY ── */
+.aclist{background:var(--card);border:1px solid var(--b1);border-radius:13px;overflow:hidden}
+.ach{padding:1rem 1.3rem;border-bottom:1px solid var(--b1);font-weight:600;font-size:.86rem}
+.acrow{display:flex;align-items:center;gap:.85rem;padding:.85rem 1.3rem;border-bottom:1px solid rgba(255,255,255,.03);transition:background .2s}
+.acrow:hover{background:rgba(255,255,255,.02)}
+.aci{width:35px;height:35px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.92rem}
+.acinfo{flex:1}
+.acn{font-size:.83rem;font-weight:500}
+.acd{font-size:.7rem;color:var(--mu)}
+.acamt{font-family:'Space Mono',monospace;font-size:.82rem;font-weight:600;white-space:nowrap}
+.acamt.g{color:var(--gr)}.acamt.r{color:var(--rd)}
+.bst{display:inline-block;padding:2px 7px;border-radius:50px;font-size:.62rem;font-weight:700;margin-left:5px}
+.bpend{background:rgba(245,158,11,.13);color:var(--or)}
+.bdone{background:rgba(34,197,94,.1);color:var(--gr)}
+/* ── REFERRAL BOX ── */
+.refbox{background:linear-gradient(135deg,rgba(212,175,55,.07),rgba(6,182,212,.03));border:1px solid var(--b2);border-radius:13px;padding:1.5rem;text-align:center;margin-bottom:1.4rem}
+.refc{font-family:'Orbitron',monospace;font-size:1.15rem;font-weight:700;color:var(--gold);background:var(--surf);border:1px dashed var(--b2);border-radius:7px;padding:10px 16px;display:inline-block;margin:.7rem 0;cursor:copy;letter-spacing:4px;transition:all .2s}
+.refc:hover{background:rgba(212,175,55,.07)}
+/* ── PROFIT TICKER ── */
+.profitticker{background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(34,197,94,.03));border:1px solid rgba(34,197,94,.25);border-radius:12px;padding:1rem 1.4rem;margin-bottom:1.4rem;display:none}
+.profitticker.show{display:block}
+.ptlabel{font-size:.72rem;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem}
+.ptval{font-family:'Orbitron',monospace;font-size:1.6rem;font-weight:900;color:var(--gr)}
+.ptrate{font-size:.75rem;color:var(--gr);margin-top:2px}
+/* ── ADMIN ── */
+.adminlock{background:var(--card);border:1px solid var(--b1);border-radius:15px}
+.adminpanel{background:var(--card);border:2px solid rgba(139,92,246,.38);border-radius:15px;padding:1.7rem}
+.abadge{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;background:rgba(139,92,246,.13);color:var(--pu);border:1px solid rgba(139,92,246,.38);border-radius:50px;font-size:.7rem;font-weight:700;font-family:'Space Mono',monospace;margin-bottom:1.3rem}
+.agrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.9rem;margin-bottom:1.3rem}
+.astat{background:var(--surf);border:1px solid var(--b1);border-radius:11px;padding:.95rem;text-align:center}
+.asv{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:700;color:var(--pu)}
+.asl{font-size:.68rem;color:var(--mu);margin-top:3px}
+.atable{width:100%;border-collapse:collapse;font-size:.8rem}
+.atable th{padding:.55rem .75rem;text-align:left;color:var(--mu);font-size:.68rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--b1)}
+.atable td{padding:.65rem .75rem;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle}
+.atable tr:hover td{background:rgba(255,255,255,.02)}
+.aact{padding:4px 11px;border-radius:6px;font-size:.7rem;font-weight:700;cursor:pointer;border:none;font-family:'Space Grotesk',sans-serif;transition:all .2s;white-space:nowrap}
+.acred{background:rgba(34,197,94,.13);color:var(--gr)}.acred:hover{background:rgba(34,197,94,.28)}
+.arej{background:rgba(239,68,68,.1);color:var(--rd)}.arej:hover{background:rgba(239,68,68,.22)}
+.appr{background:rgba(59,130,246,.1);color:var(--bl)}.appr:hover{background:rgba(59,130,246,.22)}
+/* ── ADMIN CREDIT INPUT ── */
+.creditform{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.cfinp{padding:6px 9px;background:var(--surf);border:1px solid var(--b1);border-radius:7px;color:var(--tx);font-family:'Space Mono',monospace;font-size:.78rem;width:110px;outline:none}
+.cfinp:focus{border-color:var(--gold)}
+/* ── SUPPORT ── */
+.sfab{position:fixed;bottom:1.8rem;right:1.8rem;z-index:9000;display:flex;flex-direction:column;align-items:flex-end;gap:9px}
+.stoggle{width:55px;height:55px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;font-size:1.35rem;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(212,175,55,.5);transition:all .2s;animation:float 3s ease-in-out infinite}
+.stoggle:hover{transform:scale(1.1);animation:none}
+.swin{background:var(--card);border:1px solid var(--b2);border-radius:15px;width:300px;display:none;overflow:hidden;box-shadow:0 18px 55px rgba(0,0,0,.6)}
+.swin.show{display:block;animation:slidein .3s ease}
+.shead{background:linear-gradient(135deg,rgba(212,175,55,.13),rgba(212,175,55,.04));padding:.9rem 1.1rem;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--b1)}
+.savt{width:36px;height:36px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.sname{font-weight:700;font-size:.85rem}
+.sstat{font-size:.7rem;color:var(--gr);display:flex;align-items:center;gap:4px}
+.sbody{padding:1.1rem;max-height:230px;overflow-y:auto;display:flex;flex-direction:column;gap:9px}
+.smsg{max-width:88%;padding:.65rem .88rem;border-radius:11px;font-size:.8rem;line-height:1.5}
+.smsg.bot{background:rgba(212,175,55,.09);border:1px solid var(--b1);align-self:flex-start;border-bottom-left-radius:3px}
+.smsg.usr{background:var(--gold);color:#000;align-self:flex-end;border-bottom-right-radius:3px;font-weight:500}
+.sinrow{padding:.7rem .9rem;border-top:1px solid var(--b1);display:flex;gap:7px}
+.sinp{flex:1;background:var(--surf);border:1px solid var(--b1);border-radius:7px;padding:7px 10px;color:var(--tx);font-family:'Space Grotesk',sans-serif;font-size:.8rem;outline:none}
+.sinp:focus{border-color:var(--gold)}
+.ssend{padding:7px 13px;background:var(--gold);color:#000;border:none;border-radius:7px;font-weight:700;font-size:.76rem;cursor:pointer;transition:all .2s}
+.ssend:hover{background:var(--gl)}
+.sqr{padding:0 .9rem .7rem;display:flex;gap:5px;flex-wrap:wrap}
+.sqrb{padding:3px 9px;border:1px solid var(--b1);border-radius:50px;background:transparent;color:var(--mu);font-size:.68rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all .2s}
+.sqrb:hover{border-color:var(--gold);color:var(--gold)}
+/* ── MODALS ── */
+.mover{position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);z-index:9999;display:none;align-items:center;justify-content:center;padding:1rem}
+.mover.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--b2);border-radius:18px;padding:2rem;width:100%;max-width:430px;position:relative;animation:min .3s ease;max-height:90vh;overflow-y:auto}
+.mcl{position:absolute;top:.9rem;right:.9rem;background:none;border:none;color:var(--mu);font-size:1.25rem;cursor:pointer;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:all .2s}
+.mcl:hover{background:rgba(255,255,255,.05);color:var(--tx)}
+.mtitle{font-family:'Orbitron',monospace;font-size:1.25rem;font-weight:700;color:var(--gold);margin-bottom:.35rem}
+.msub{font-size:.8rem;color:var(--mu);margin-bottom:1.6rem}
+.tabs{display:flex;gap:0;margin-bottom:1.3rem;background:var(--surf);border-radius:9px;padding:3px}
+.tab{flex:1;padding:9px;border:none;border-radius:7px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.8rem;background:transparent;color:var(--mu);transition:all .2s}
+.tab.active{background:var(--gold);color:#000}
+/* ── TOAST ── */
+.toast{position:fixed;bottom:5.5rem;right:1.8rem;z-index:99999;background:var(--card);border:1px solid var(--gold);border-radius:11px;padding:.85rem 1.3rem;display:flex;align-items:center;gap:9px;font-size:.84rem;box-shadow:0 10px 38px rgba(0,0,0,.5);transform:translateX(200%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);max-width:330px}
+.toast.show{transform:translateX(0)}
+.tico{font-size:1.05rem;flex-shrink:0}
+/* ── REVEAL ── */
+.rv{opacity:0;transform:translateY(26px);transition:all .7s ease}
+.rv.vis{opacity:1;transform:translateY(0)}
+/* ── FOOTER ── */
+footer{background:var(--surf);border-top:1px solid var(--b1);padding:2.8rem 2rem;text-align:center;position:relative;z-index:1}
+.flogo{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;color:var(--gold);margin-bottom:.9rem}
+.fcontact{display:flex;gap:.9rem;justify-content:center;margin-bottom:1.3rem;flex-wrap:wrap}
+.fcontact a{display:flex;align-items:center;gap:6px;padding:6px 13px;border-radius:7px;font-size:.76rem;text-decoration:none;transition:all .2s}
+.ftg{background:rgba(37,211,102,.09);color:#25d366;border:1px solid rgba(37,211,102,.22)}
+.fem{background:rgba(59,130,246,.09);color:#93C5FD;border:1px solid rgba(59,130,246,.22)}
+.flinks{display:flex;flex-wrap:wrap;justify-content:center;gap:1.3rem;margin-bottom:1.3rem}
+.flinks a{color:var(--mu);text-decoration:none;font-size:.8rem;transition:color .2s}
+.flinks a:hover{color:var(--gold)}
+.fcopy{color:var(--mu);font-size:.72rem}
+@media(max-width:580px){.nlinks{display:none}h1.ht{font-size:1.9rem}.swin{width:272px}}
+</style>
+</head>
+<body>
+<div class="sf" id="sf"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nlogo">NEXUS<span>VAULT</span></div>
+  <div class="nlinks">
+    <a href="#plans">Plans</a>
+    <a href="#proof">Proof</a>
+    <a href="#charity">Charity</a>
+    <a href="#roi">Calculator</a>
+    <a href="#" onclick="reqDashTab('deposit');return false">Deposit</a>
+    <a href="#" onclick="reqDashTab('withdraw');return false">Withdraw</a>
+    <div class="lsw">
+      <button class="lb active" onclick="setLang('en')">EN</button>
+      <button class="lb" onclick="setLang('fr')">FR</button>
+      <button class="lb" onclick="setLang('es')">ES</button>
+      <button class="lb" onclick="setLang('pt')">PT</button>
+      <button class="lb" onclick="setLang('zh')">ZH</button>
+    </div>
+  </div>
+  <button class="bnav" id="navBtn" onclick="openAuth()">Get Started</button>
+</nav>
+
+<!-- CAUTION BANNER -->
+<div class="cbanner">
+  <div class="ci">⚠️</div>
+  <div class="ct"><strong>IMPORTANT — Read Before Depositing</strong>
+  Contact admin BEFORE making any deposit. Admin manually credits your wallet after confirming payment. Only send BNB on BSC network.</div>
+  <div class="clinks">
+    <a href="https://t.me/ECEcoin18" target="_blank" class="cl tg">📱 @ECEcoin18 Telegram</a>
+    <a href="mailto:support@efikcoin.xyz" class="cl em">✉️ support@efikcoin.xyz</a>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="tickwrap"><div class="tickrow" id="ticker"></div></div>
+
+<!-- HERO -->
+<section class="hero sec" id="home">
+  <div class="hbadge"><div class="ldot"></div><span>Live on Binance Smart Chain · BSC Network</span></div>
+  <h1 class="ht"><span>Your Wealth</span><span class="gold">Multiplied Forever</span></h1>
+  <p class="hsub">Stake, earn, and grow your crypto with institutional-grade DeFi on BSC — secured, transparent, and unstoppable. 10% of all profits fund global charity.</p>
+  <div class="hcta">
+    <button class="bprimary" onclick="openAuth()">🚀 Start Investing Today</button>
+    <button class="boutline" onclick="document.getElementById('plans').scrollIntoView({behavior:'smooth'})">View Plans ↓</button>
+  </div>
+  <div class="sbar">
+    <div class="si"><span class="sn" id="sTVL">$0</span><span class="sl">Total Value Locked</span></div>
+    <div class="si"><span class="sn" id="sUSR">0</span><span class="sl">Active Investors</span></div>
+    <div class="si"><span class="sn" id="sPAID">$0</span><span class="sl">Rewards Paid</span></div>
+    <div class="si"><span class="sn">99.9%</span><span class="sl">Uptime</span></div>
+  </div>
+</section>
+
+<!-- COINS STRIP -->
+<div class="nstrip sec">
+  <div class="nsinner">
+    <div class="nstitle">Supported Coins &amp; Networks</div>
+    <div class="ccoins" id="coinsRow"></div>
+  </div>
+</div>
+
+<!-- PLANS -->
+<section class="sec" id="plans">
+  <div class="plsec">
+    <div class="shead rv"><span class="ey">Investment Plans</span>
+      <h2 class="stitle">Choose Your <span>Growth Path</span></h2>
+      <p class="ssub">Flexible tiers for every investor — daily rewards, on-chain, transparent.</p>
+    </div>
+    <div class="plgrid">
+      <div class="pc rv" style="--ac:#22C55E">
+        <div class="pbadge">🌱 Starter</div>
+        <div class="pname">Seed Plan</div><div class="papy">12%</div>
+        <div class="papy-l">Annual Percentage Yield</div>
+        <ul class="pf"><li>Min. $100 investment</li><li>30-day lock period</li><li>Daily reward</li><li>Referral: 5% bonus</li><li>BSC on-chain transparent</li></ul>
+        <button class="pbtn" onclick="selectPlan('Seed',12,100,30)">Invest Now</button>
+      </div>
+      <div class="pc rv" style="--ac:#3B82F6">
+        <div class="pbadge">📈 Popular</div>
+        <div class="pname">Growth Plan</div><div class="papy">28%</div>
+        <div class="papy-l">Annual Percentage Yield</div>
+        <ul class="pf"><li>Min. $500 investment</li><li>60-day lock period</li><li>Daily reward</li><li>Referral: 8% bonus</li><li>Portfolio tracker</li></ul>
+        <button class="pbtn" onclick="selectPlan('Growth',28,500,60)">Invest Now</button>
+      </div>
+      <div class="pc feat rv" style="--ac:#D4AF37">
+        <div class="pbadge hot">🔥 Best Value</div>
+        <div class="pname">Sovereign Plan</div><div class="papy">65%</div>
+        <div class="papy-l">Annual Percentage Yield</div>
+        <ul class="pf"><li>Min. $2,000 investment</li><li>90-day lock period</li><li>Daily reward</li><li>Referral: 12% bonus</li><li>Priority 24/7 support</li></ul>
+        <button class="pbtn filled" onclick="selectPlan('Sovereign',65,2000,90)">Invest Now</button>
+      </div>
+      <div class="pc rv" style="--ac:#8B5CF6">
+        <div class="pbadge">⚡ Liquidity</div>
+        <div class="pname">LP Farming</div><div class="papy">45%</div>
+        <div class="papy-l">Annual Percentage Yield</div>
+        <ul class="pf"><li>Min. $1,000 LP tokens</li><li>Flexible duration</li><li>Auto compound</li><li>Referral: 10% bonus</li><li>PancakeSwap integrated</li></ul>
+        <button class="pbtn" onclick="selectPlan('LP Farming',45,1000,0)">Invest Now</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROI CALC -->
+<section class="sec" id="roi">
+  <div class="roisec">
+    <div class="shead rv"><span class="ey">ROI Calculator</span>
+      <h2 class="stitle">See Your <span>Potential Returns</span></h2>
+    </div>
+    <div class="roicard rv">
+      <div>
+        <div class="rg"><div class="rl"><span>Investment Amount</span><span class="rv2" id="rAmtL">$1,000</span></div><input type="range" id="rAmt" min="100" max="50000" step="100" value="1000" oninput="calcROI()"></div>
+        <div class="rg"><div class="rl"><span>Duration (months)</span><span class="rv2" id="rDurL">6 months</span></div><input type="range" id="rDur" min="1" max="24" step="1" value="6" oninput="calcROI()"></div>
+        <div class="fg"><label class="fl">Select Plan</label>
+          <select class="fi" id="rPlan" onchange="calcROI()">
+            <option value="12">Seed Plan — 12% APY</option>
+            <option value="28">Growth Plan — 28% APY</option>
+            <option value="65" selected>Sovereign Plan — 65% APY</option>
+            <option value="45">LP Farming — 45% APY</option>
+          </select>
+        </div>
+      </div>
+      <div class="roires">
+        <div style="font-size:.72rem;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:.9rem">You Will Earn</div>
+        <div class="roibig" id="rEarn">$0</div>
+        <div style="color:var(--mu);font-size:.8rem;margin-top:3px">in earnings</div>
+        <div style="margin:1.2rem 0;border-top:1px solid var(--b1)"></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="color:var(--mu);font-size:.78rem">Total Value</span><span style="font-family:'Space Mono',monospace;font-weight:700;color:var(--gold)" id="rTotal">$0</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="color:var(--mu);font-size:.78rem">Daily Earnings</span><span style="font-family:'Space Mono',monospace;font-weight:700;color:var(--gr)" id="rDaily">$0</span></div>
+        <button class="bfull" style="margin-top:1.2rem" onclick="openAuth()">Start Earning Now →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<section class="sec" id="proof">
+  <div class="proofsec">
+    <div class="proofin">
+      <div class="shead rv"><span class="ey">Investor Proof</span>
+        <h2 class="stitle">Real Results from <span>Real Investors</span></h2>
+        <p class="ssub">Verified earnings from our community of global investors</p>
+      </div>
+      <div class="pgrid" id="pgrid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CHARITY -->
+<section class="sec" id="charity">
+  <div class="chsec">
+    <div class="shead rv"><span class="ey">Charity &amp; Empowerment</span>
+      <h2 class="stitle">Profit with <span>Purpose</span></h2>
+      <p class="ssub">10% of all platform profits automatically fund global community programs</p>
+    </div>
+    <div class="chgrid">
+      <div class="chvis rv">
+        <div style="text-align:center">
+          <div class="chring"><div class="chctr"><div style="font-family:'Orbitron',monospace;font-size:1.7rem;font-weight:900;color:var(--gold)">10%</div><div style="font-size:.62rem;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-top:2px">Allocated</div></div></div>
+          <p style="color:var(--mu);font-size:.8rem;margin-top:1.4rem">Every transaction creates real-world impact</p>
+        </div>
+      </div>
+      <div class="rv">
+        <h3 style="font-size:1.25rem;font-weight:700;margin-bottom:.65rem">Empowering Communities Worldwide</h3>
+        <p style="color:var(--mu);margin-bottom:1.3rem;font-size:.86rem">NexusVault's Empowerment Fund guarantees a share of all protocol revenue goes toward verified humanitarian initiatives — no middlemen, on-chain transparency.</p>
+        <div class="iitems">
+          <div class="iitem"><div class="iico" style="background:rgba(34,197,94,.1)">🎓</div><div class="iin"><h4>Education Access</h4><p>Blockchain literacy programs across Africa, Asia &amp; Latin America</p></div></div>
+          <div class="iitem"><div class="iico" style="background:rgba(59,130,246,.1)">💧</div><div class="iin"><h4>Clean Water Projects</h4><p>NGO partnerships to fund rural water infrastructure</p></div></div>
+          <div class="iitem"><div class="iico" style="background:rgba(212,175,55,.1)">🌱</div><div class="iin"><h4>Women Entrepreneurship</h4><p>Micro-grants via blockchain-verified disbursements</p></div></div>
+          <div class="iitem"><div class="iico" style="background:rgba(139,92,246,.1)">🏥</div><div class="iin"><h4>Healthcare Fund</h4><p>Telemedicine &amp; medical supply chains in low-income regions</p></div></div>
+        </div>
+        <div class="refbox" style="margin-top:1.6rem;text-align:center">
+          <div style="font-size:.74rem;color:var(--mu)">Total Donated to Date</div>
+          <div style="font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:900;color:var(--gold);margin:.3rem 0">$247,318</div>
+          <div style="font-size:.73rem;color:var(--mu)">Verified on-chain — BSC Explorer</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section class="sec dash" id="dashboard">
+  <div class="din">
+    <!-- header -->
+    <div class="dhead">
+      <div class="dgrt">
+        <h2>👋 Welcome back, <span id="dName" style="color:var(--gold)"></span></h2>
+        <p>Your investment dashboard — live on BSC</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <div class="wbadge"><div class="wdot"></div><span id="dWalletShort">0x0000...0000</span></div>
+        <button class="boutline" style="padding:7px 13px;font-size:.78rem" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <!-- Full wallet address (copyable, real generated) -->
+    <div class="waddrbox rv">
+      <div class="waddr-label">Your BSC Wallet Address (Generated)</div>
+      <div class="waddr-full" id="dWalletFull" onclick="copyWallet()" title="Click to copy full address">0x0000000000000000000000000000000000000000</div>
+      <div style="font-size:.7rem;color:var(--mu);margin-bottom:.4rem">👆 Click to copy your full address</div>
+      <div class="waddr-net">🟡 BSC · BEP-20 Network</div>
+    </div>
+
+    <!-- METRICS -->
+    <div class="mgrid">
+      <div class="mc">
+        <div class="mlbl">Portfolio Balance</div>
+        <div class="mv g" id="mBal">$0.00</div>
+        <div class="mbar" id="mBarBal"></div>
+      </div>
+      <div class="mc">
+        <div class="mlbl">Total Earned</div>
+        <div class="mv" id="mEarned">$0.00</div>
+        <div class="mch up" id="mEarnedDay">+$0.00 today</div>
+      </div>
+      <div class="mc">
+        <div class="mlbl">Active Plan</div>
+        <div class="mv" style="font-size:.95rem" id="mPlan">— None</div>
+        <div class="msub" id="mPlanAPY">Select a plan to start earning</div>
+      </div>
+      <div class="mc">
+        <div class="mlbl">Referral Earnings</div>
+        <div class="mv" id="mRef">$0.00</div>
+        <div class="mch up">+5%–12% per referral</div>
+      </div>
+    </div>
+
+    <!-- LIVE PROFIT TICKER -->
+    <div class="profitticker" id="profitticker">
+      <div class="ptlabel">🟢 Live Profit Accruing</div>
+      <div class="ptval" id="ptval">$0.00000</div>
+      <div class="ptrate" id="ptrate">+$0.00 / hour · Plan active</div>
+    </div>
+
+    <!-- REFERRAL -->
+    <div class="refbox rv">
+      <div style="font-weight:600;margin-bottom:.45rem">Your Referral Code</div>
+      <div class="refc" id="refCode" onclick="copyRef()" title="Click to copy">NVX-000000</div>
+      <div style="font-size:.76rem;color:var(--mu)">Share &amp; earn up to 12% on every referral investment</div>
+    </div>
+
+    <!-- DASH TABS -->
+    <div class="dtabs">
+      <button class="dtab active" onclick="switchDTab('activity')" id="dt-activity">📊 Activity</button>
+      <button class="dtab" onclick="switchDTab('deposit')" id="dt-deposit">💰 Deposit</button>
+      <button class="dtab" onclick="switchDTab('withdraw')" id="dt-withdraw">📤 Withdraw</button>
+      <button class="dtab" onclick="switchDTab('admin')" id="dt-admin">🔐 Admin</button>
+    </div>
+
+    <!-- ACTIVITY -->
+    <div id="dp-activity">
+      <div class="aclist">
+        <div class="ach">Recent Activity</div>
+        <div id="actBody"></div>
+      </div>
+    </div>
+
+    <!-- DEPOSIT -->
+    <div id="dp-deposit" style="display:none">
+      <div class="depp">
+        <div class="depwarn">
+          <div class="depwi">🚨</div>
+          <div class="depwt">
+            <strong>⚠️ CONTACT ADMIN BEFORE DEPOSITING</strong>
+            You must contact admin via Telegram or Email BEFORE sending any funds. After your transfer is verified, admin will manually credit your dashboard. Do NOT send without prior contact.
+          </div>
+        </div>
+        <div class="depbody">
+          <div class="bnbbadge">🟡 BSC — Binance Smart Chain (BEP-20) Only</div>
+          <div class="bnbnote">⚠️ Only send <strong style="margin:0 3px">BNB</strong> on Binance Smart Chain (BSC). Other networks = permanent loss.</div>
+          <div style="font-size:.8rem;color:var(--mu);margin-bottom:.45rem;font-weight:600">Official Deposit Address</div>
+          <div class="daddrbox" onclick="copyDepAddr()">
+            <div class="daddr" id="depAddrDisplay">0x676cCf34C191a9D6EFE4B265b84877C619A559d0</div>
+            <div class="dcopyhint">📋 Click to copy deposit address</div>
+          </div>
+          <div style="font-size:.84rem;font-weight:600;margin-bottom:.7rem;color:var(--tx)">How to Deposit (Follow these steps):</div>
+          <ol class="steps">
+            <li>Contact admin on Telegram (@ECEcoin18) or Email (support@efikcoin.xyz)</li>
+            <li>Tell admin your name, dashboard wallet address, and desired investment amount</li>
+            <li>Wait for confirmation and instructions from admin</li>
+            <li>Send BNB only on BSC network to the address above</li>
+            <li>Share your transaction hash (TxHash) with admin as proof</li>
+            <li>Admin will verify and credit your dashboard balance within 1–3 hours</li>
+          </ol>
+          <div class="crow">
+            <a href="https://t.me/ECEcoin18" target="_blank" class="cbtn tg">📱 Telegram @ECEcoin18</a>
+            <a href="mailto:support@efikcoin.xyz" class="cbtn em">✉️ support@efikcoin.xyz</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WITHDRAW -->
+    <div id="dp-withdraw" style="display:none">
+      <div class="withp">
+        <div style="font-size:.84rem;font-weight:700;margin-bottom:1.1rem">💳 Withdrawal Request</div>
+        <div class="winfo">
+          <div class="wic"><div class="wiv" id="wAvail">$0.00</div><div class="wil">Available Balance</div></div>
+          <div class="wic"><div class="wiv" id="wEarned2">$0.00</div><div class="wil">Total Earned</div></div>
+          <div class="wic"><div class="wiv" style="color:var(--or)">2%</div><div class="wil">Processing Fee</div></div>
+        </div>
+        <div class="fg">
+          <label class="fl">Coin / Network</label>
+          <select class="fi" id="wCoin">
+            <option value="BNB">BNB — Binance Smart Chain (BSC)</option>
+            <option value="USDT">USDT — BEP-20 (BSC)</option>
+            <option value="BUSD">BUSD — BEP-20 (BSC)</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Withdrawal Amount (USD)</label>
+          <input type="number" class="fi" id="wAmt" placeholder="Min. $10.00" min="10" oninput="updateWPreview()">
+        </div>
+        <div id="wPreview" style="display:none;background:var(--surf);border-radius:9px;padding:.9rem;margin-bottom:.9rem">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.8rem"><span style="color:var(--mu)">You Receive</span><span id="wReceive" style="font-family:'Space Mono';font-weight:700;color:var(--gr)">$0</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem"><span style="color:var(--mu)">Fee (2%)</span><span id="wFee" style="font-family:'Space Mono';color:var(--rd)">-$0</span></div>
+        </div>
+        <div class="fg">
+          <label class="fl">Destination Wallet Address (BSC / 0x...)</label>
+          <input type="text" class="fi" id="wAddr" placeholder="0x...your BSC wallet address">
+        </div>
+        <button class="bfull" onclick="submitWithdraw()">Submit Withdrawal Request</button>
+        <p class="wnote">⚠️ Withdrawals processed manually by admin within 24–48h. Contact <a href="https://t.me/ECEcoin18" target="_blank" style="color:var(--gold)">@ECEcoin18</a> or <a href="mailto:support@efikcoin.xyz" style="color:var(--gold)">support@efikcoin.xyz</a> for urgent requests.</p>
+      </div>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="dp-admin" style="display:none">
+      <div id="adminLock" class="adminlock">
+        <div style="text-align:center;padding:2.5rem 1.5rem">
+          <div style="font-size:2.8rem;margin-bottom:.9rem">🔐</div>
+          <div style="font-family:'Orbitron',monospace;font-size:1.05rem;font-weight:700;color:var(--gold);margin-bottom:.4rem">Admin Access</div>
+          <div style="color:var(--mu);font-size:.82rem;margin-bottom:1.3rem">Enter admin password to unlock control panel</div>
+          <div class="fg" style="max-width:270px;margin:0 auto">
+            <input type="password" class="fi" id="aPass" placeholder="Admin password" onkeydown="if(event.key==='Enter')checkAdmin()">
+          </div>
+          <button class="bfull" style="max-width:270px;margin:.5rem auto 0" onclick="checkAdmin()">Unlock Admin Panel</button>
+        </div>
+      </div>
+      <div id="adminPanel" style="display:none">
+        <div class="adminpanel">
+          <div class="abadge">🔐 Admin Control Panel</div>
+          <div class="agrid">
+            <div class="astat"><div class="asv" id="aTotal">48,219</div><div class="asl">Total Users</div></div>
+            <div class="astat"><div class="asv" id="aPendDep">0</div><div class="asl">Pending Deposits</div></div>
+            <div class="astat"><div class="asv" id="aTotalFunds">$0</div><div class="asl">Funds Managed</div></div>
+            <div class="astat"><div class="asv" id="aPendWith">0</div><div class="asl">Pending Withdrawals</div></div>
+          </div>
+
+          <!-- MANUAL CREDIT SECTION -->
+          <div style="background:rgba(212,175,55,.06);border:1px solid var(--b2);border-radius:11px;padding:1.2rem;margin-bottom:1.3rem">
+            <div style="font-size:.82rem;font-weight:700;color:var(--gold);margin-bottom:.8rem">💰 Manually Credit User Balance</div>
+            <div style="display:flex;gap:.7rem;flex-wrap:wrap;align-items:flex-end">
+              <div style="flex:1;min-width:150px">
+                <label class="fl">User Email</label>
+                <input type="email" class="fi" id="aCredEmail" placeholder="user@email.com">
+              </div>
+              <div style="min-width:120px">
+                <label class="fl">Amount (USD)</label>
+                <input type="number" class="fi" id="aCredAmt" placeholder="500">
+              </div>
+              <div style="min-width:130px">
+                <label class="fl">Plan (optional)</label>
+                <select class="fi" id="aCredPlan">
+                  <option value="">No change</option>
+                  <option value="Seed">Seed (12%)</option>
+                  <option value="Growth">Growth (28%)</option>
+                  <option value="Sovereign">Sovereign (65%)</option>
+                  <option value="LP Farming">LP Farming (45%)</option>
+                </select>
+              </div>
+              <button onclick="adminManualCredit()" style="padding:10px 16px;background:var(--gr);color:#000;border:none;border-radius:9px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:.82rem;white-space:nowrap">✓ Credit Now</button>
+            </div>
+          </div>
+
+          <!-- PENDING DEPOSITS TABLE -->
+          <div style="font-size:.8rem;font-weight:700;margin-bottom:.7rem;color:var(--tx)">Pending Deposit Requests</div>
+          <div style="overflow-x:auto;margin-bottom:1.4rem">
+            <table class="atable"><thead><tr><th>User</th><th>Amount</th><th>Plan</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="aDepBody"></tbody></table>
+          </div>
+
+          <!-- PENDING WITHDRAWALS TABLE -->
+          <div style="font-size:.8rem;font-weight:700;margin-bottom:.7rem;color:var(--tx)">Pending Withdrawal Requests</div>
+          <div style="overflow-x:auto">
+            <table class="atable"><thead><tr><th>User</th><th>Amount</th><th>Coin</th><th>Address</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody id="aWithBody"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="sec">
+  <div class="flogo">NEXUSVAULT · Efikcoin Eternal Ecosystem</div>
+  <div class="fcontact">
+    <a href="https://t.me/ECEcoin18" target="_blank" class="ftg">📱 Telegram: @ECEcoin18</a>
+    <a href="mailto:support@efikcoin.xyz" class="fem">✉️ support@efikcoin.xyz</a>
+  </div>
+  <div class="flinks">
+    <a href="#">Terms of Service</a><a href="#">Privacy Policy</a>
+    <a href="#">Smart Contract Audit</a><a href="#">Whitepaper</a>
+    <a href="https://t.me/ECEcoin18" target="_blank">Support</a>
+  </div>
+  <p class="fcopy">© 2025 NexusVault Protocol · Efikcoin Eternal Ecosystem (ECE). Binance Smart Chain. Deposit Address: 0x676cCf34C191a9D6EFE4B265b84877C619A559d0 · Investment involves risk — DYOR.</p>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="mover" id="authModal">
+  <div class="modal">
+    <button class="mcl" onclick="closeAuth()">✕</button>
+    <div class="mtitle">NexusVault</div>
+    <div class="msub">Join 48,000+ global investors earning daily</div>
+    <div class="tabs">
+      <button class="tab active" id="tReg" onclick="switchTab('r')">Register</button>
+      <button class="tab" id="tLog" onclick="switchTab('l')">Login</button>
+    </div>
+    <div id="fReg">
+      <div class="fg"><label class="fl">Full Name</label><input type="text" class="fi" id="rName" placeholder="John Doe"></div>
+      <div class="fg"><label class="fl">Email Address</label><input type="email" class="fi" id="rEmail" placeholder="you@email.com"></div>
+      <div class="fg"><label class="fl">Password</label><input type="password" class="fi" id="rPass" placeholder="Min 8 characters"></div>
+      <div class="fg"><label class="fl">Referral Code (optional)</label><input type="text" class="fi" id="rRef" placeholder="NVX-XXXXXX"></div>
+      <button class="bfull" onclick="doRegister()">Create My Account &amp; Wallet</button>
+    </div>
+    <div id="fLog" style="display:none">
+      <div class="fg"><label class="fl">Email Address</label><input type="email" class="fi" id="lEmail" placeholder="you@email.com"></div>
+      <div class="fg"><label class="fl">Password</label><input type="password" class="fi" id="lPass" placeholder="Your password"></div>
+      <button class="bfull" onclick="doLogin()">Login to Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- PLAN MODAL -->
+<div class="mover" id="planModal">
+  <div class="modal">
+    <button class="mcl" onclick="closePlanModal()">✕</button>
+    <div class="mtitle" id="pmTitle">Invest: Seed Plan</div>
+    <div class="msub" id="pmSub">Earning 12% APY · Min $100</div>
+    <div class="depwarn" style="border-radius:9px;margin-bottom:1.1rem">
+      <div style="font-size:1rem">⚠️</div>
+      <div style="font-size:.78rem;color:#FCA5A5"><strong style="color:#EF4444;display:block;margin-bottom:2px">Contact Admin Before Depositing</strong>You must contact admin on Telegram (@ECEcoin18) or email (support@efikcoin.xyz) BEFORE sending any funds.</div>
+    </div>
+    <div class="fg"><label class="fl">Investment Amount (USD)</label><input type="number" class="fi" id="pmAmt" placeholder="100" min="100" oninput="updatePMPreview()"></div>
+    <div id="pmPreview" style="display:none;background:var(--surf);border-radius:9px;padding:.9rem;margin-bottom:1rem">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.8rem"><span style="color:var(--mu)">Monthly Earnings</span><span id="pmMonthly" style="font-family:'Space Mono';font-weight:700;color:var(--gr)">$0</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:.8rem"><span style="color:var(--mu)">Total at Maturity</span><span id="pmTotal" style="font-family:'Space Mono';font-weight:700;color:var(--gold)">$0</span></div>
+    </div>
+    <button class="bfull" onclick="confirmPlan()">Confirm &amp; Go to Deposit →</button>
+    <div class="crow" style="margin-top:.8rem">
+      <a href="https://t.me/ECEcoin18" target="_blank" class="cbtn tg" style="font-size:.74rem">📱 Contact Admin First</a>
+      <a href="mailto:support@efikcoin.xyz" class="cbtn em" style="font-size:.74rem">✉️ Email Admin</a>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span class="tico" id="tIco">✅</span><span id="tMsg">OK</span></div>
+
+<!-- LIVE SUPPORT FAB -->
+<div class="sfab">
+  <div class="swin" id="swin">
+    <div class="shead">
+      <div class="savt">🤖</div>
+      <div><div class="sname">NexusVault Support</div><div class="sstat"><div class="ldot" style="width:6px;height:6px"></div>Online · Replies in minutes</div></div>
+    </div>
+    <div class="sbody" id="sbody">
+      <div class="smsg bot">👋 Hello! Welcome to NexusVault. How can I help you?</div>
+      <div class="smsg bot">For deposits, contact admin first:<br>📱 <a href="https://t.me/ECEcoin18" target="_blank" style="color:var(--gold)">@ECEcoin18</a> · ✉️ <a href="mailto:support@efikcoin.xyz" style="color:var(--gold)">support@efikcoin.xyz</a></div>
+    </div>
+    <div class="sqr">
+      <button class="sqrb" onclick="qr('How do I deposit?')">Deposit?</button>
+      <button class="sqrb" onclick="qr('How do I withdraw?')">Withdraw?</button>
+      <button class="sqrb" onclick="qr('Investment plans?')">Plans?</button>
+      <button class="sqrb" onclick="qr('Contact admin?')">Contact?</button>
+    </div>
+    <div class="sinrow">
+      <input type="text" class="sinp" id="sinp" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendS()">
+      <button class="ssend" onclick="sendS()">Send</button>
+    </div>
+  </div>
+  <button class="stoggle" id="stog" onclick="toggleS()" title="Live Support">💬</button>
+</div>
+
+<script>
+/* ════════════════════════════════
+   DATA STORE — localStorage based
+   ════════════════════════════════ */
+const DEPOSIT_ADDR = '0x676cCf34C191a9D6EFE4B265b84877C619A559d0';
+const ADMIN_PASS   = 'ECEadmin2025';
+const PLAN_APYS    = {Seed:12,Growth:28,Sovereign:65,'LP Farming':45};
+
+/* DB helpers */
+function DB_get(k){ try{return JSON.parse(localStorage.getItem(k))||null}catch{return null} }
+function DB_set(k,v){ localStorage.setItem(k,JSON.stringify(v)) }
+
+/* Users store: { email: {name,email,passHash,wallet,ref,balance,earned,plan,planApy,planStart,activity:[]} } */
+function getUsers(){ return DB_get('nvx_users')||{} }
+function saveUsers(u){ DB_set('nvx_users',u) }
+
+/* Deposits store: [{id,userEmail,userName,amount,plan,date,status,txHash}] */
+function getDeposits(){ return DB_get('nvx_deposits')||[] }
+function saveDeposits(d){ DB_set('nvx_deposits',d) }
+
+/* Withdrawals store: [{id,userEmail,userName,amount,coin,address,date,status}] */
+function getWithdrawals(){ return DB_get('nvx_withdrawals')||[] }
+function saveWithdrawals(w){ DB_set('nvx_withdrawals',w) }
+
+/* Session */
+function getSession(){ return DB_get('nvx_session') }
+function setSession(email){ DB_set('nvx_session',{email,ts:Date.now()}) }
+function clearSession(){ localStorage.removeItem('nvx_session') }
+
+/* ── UTILS ── */
+function genWallet(){
+  let a='0x'; const h='0123456789abcdef';
+  for(let i=0;i<40;i++) a+=h[Math.floor(Math.random()*16)];
+  return a;
+}
+function shortAddr(a){ return a?a.slice(0,6)+'...'+a.slice(-4):'' }
+function genRef(){ const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let r='NVX-';for(let i=0;i<6;i++)r+=c[Math.floor(Math.random()*c.length)];return r }
+function hashPass(s){ let h=0;for(let i=0;i<s.length;i++){h=(Math.imul(31,h)+s.charCodeAt(i))|0}return h.toString(16) }
+function fmt(n){ return '$'+(+n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) }
+function fmtBig(n){ return '$'+(+n).toLocaleString('en-US',{maximumFractionDigits:0}) }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6).toUpperCase() }
+function today(){ return new Date().toISOString().split('T')[0] }
+
+/* ── STARFIELD ── */
+function initStars(){
+  const sf=document.getElementById('sf');
+  for(let i=0;i<110;i++){
+    const s=document.createElement('div');s.className='st';
+    const z=Math.random()*2.2+.8;
+    s.style.cssText=`width:${z}px;height:${z}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${Math.random()*4+2}s;animation-delay:${Math.random()*7}s`;
+    sf.appendChild(s);
+  }
+  for(let i=0;i<7;i++){
+    const p=document.createElement('div');p.className='pp';
+    p.style.cssText=`left:${Math.random()*100}%;--dur:${Math.random()*10+6}s;--del:${Math.random()*9}s;--dx:${(Math.random()-.5)*90}px`;
+    document.body.appendChild(p);
+  }
+}
+
+/* ── TICKER ── */
+const TDATA=[
+  {sym:'BTC',ico:'₿',p:'$67,420',c:'+2.3%',up:1},{sym:'ETH',ico:'⟠',p:'$3,521',c:'+1.8%',up:1},
+  {sym:'BNB',ico:'◈',p:'$618',c:'+3.1%',up:1},{sym:'USDT',ico:'₮',p:'$1.000',c:'+0.01%',up:1},
+  {sym:'SOL',ico:'◎',p:'$178',c:'-0.9%',up:0},{sym:'ADA',ico:'₳',p:'$0.612',c:'+4.2%',up:1},
+  {sym:'ECE',ico:'⭐',p:'$0.0847',c:'+8.6%',up:1},{sym:'CAKE',ico:'🎂',p:'$2.84',c:'-1.2%',up:0},
+  {sym:'LINK',ico:'⬡',p:'$18.40',c:'+5.1%',up:1},{sym:'MATIC',ico:'◆',p:'$0.891',c:'-1.3%',up:0},
+];
+function buildTicker(){
+  const el=document.getElementById('ticker');
+  const items=[...TDATA,...TDATA];
+  el.innerHTML=items.map(d=>`<div class="ti"><span>${d.ico}</span><span class="ts">${d.sym}</span><span class="tp">${d.p}</span><span class="${d.up?'tup':'tdn'}">${d.c}</span></div>`).join('');
+  setInterval(()=>{
+    document.querySelectorAll('.tp').forEach(e=>{
+      const v=parseFloat(e.textContent.replace(/[$,]/g,''));
+      if(!isNaN(v)){const d=v*(Math.random()*.006-.003);e.textContent='$'+(v+d).toLocaleString('en-US',{maximumFractionDigits:v<1?4:v<100?2:0})}
+    });
+  },4500);
+}
+
+/* ── COINS STRIP ── */
+const COINS=[
+  {s:'BNB',i:'🟡',bg:'rgba(240,185,11,.14)',p:'$618',c:'+3.1%',up:1,dl:'0s'},
+  {s:'BTC',i:'🟠',bg:'rgba(247,147,26,.13)',p:'$67,420',c:'+2.3%',up:1,dl:'.3s'},
+  {s:'ETH',i:'🔷',bg:'rgba(98,126,234,.13)',p:'$3,521',c:'+1.8%',up:1,dl:'.6s'},
+  {s:'USDT',i:'💚',bg:'rgba(34,197,94,.13)',p:'$1.000',c:'+0.01%',up:1,dl:'.9s'},
+  {s:'BUSD',i:'🟡',bg:'rgba(240,185,11,.09)',p:'$1.001',c:'+0.02%',up:1,dl:'1.2s'},
+  {s:'ECE',i:'⭐',bg:'rgba(212,175,55,.14)',p:'$0.0847',c:'+8.6%',up:1,dl:'1.5s'},
+  {s:'CAKE',i:'🎂',bg:'rgba(139,92,246,.11)',p:'$2.84',c:'-1.2%',up:0,dl:'1.8s'},
+  {s:'SOL',i:'🟣',bg:'rgba(153,69,255,.11)',p:'$178',c:'-0.9%',up:0,dl:'2.1s'},
+];
+function buildCoins(){
+  document.getElementById('coinsRow').innerHTML=COINS.map(c=>`
+    <div class="cbadge"><div class="cico" style="background:${c.bg};animation-delay:${c.dl}">${c.i}</div>
+    <div class="cname">${c.s}</div><div class="cprice">${c.p}</div><div class="cchg ${c.up?'cup':'cdn'}">${c.c}</div></div>`).join('');
+}
+
+/* ── STATS COUNTER ── */
+function counter(el,end,pre=''){
+  const dur=2000;const step=end/(dur/16);let cur=0;
+  const t=setInterval(()=>{cur=Math.min(cur+step,end);el.textContent=pre+Math.round(cur).toLocaleString();if(cur>=end)clearInterval(t)},16);
+}
+function runStats(){
+  counter(document.getElementById('sTVL'),28400000,'$');
+  counter(document.getElementById('sUSR'),48219);
+  counter(document.getElementById('sPAID'),6200000,'$');
+}
+
+/* ── PROOF CARDS ── */
+const PROOF=[
+  {u:'Maria S.',h:'@maria_crypto',f:'🇧🇷',col:'#22C55E',amt:'+$4,820',plan:'Sovereign',txt:'Three months in and Sovereign plan delivers every day. On-time payouts, clean dashboard.',bars:[40,60,75,55,80,90,65,88]},
+  {u:'James K.',h:'@jkobby_bsc',f:'🇬🇭',col:'#3B82F6',amt:'+$1,240',plan:'Growth',txt:'Started Growth at $500, now reinvesting into Sovereign. Referral system added $340 this month alone.',bars:[30,45,50,60,72,80,75,85]},
+  {u:'Yuki T.',h:'@yukit_defi',f:'🇯🇵',col:'#8B5CF6',amt:'+$9,100',plan:'Sovereign',txt:'65% APY delivering as promised. BSC transparency gives me full confidence.',bars:[50,65,70,80,75,90,95,100]},
+  {u:'Amara B.',h:'@amara_defi',f:'🇸🇳',col:'#D4AF37',amt:'+$620',plan:'Seed',txt:'Perfect for beginners. Started $200, full returns after 30 days, upgrading to Growth now!',bars:[20,30,40,45,50,55,60,65]},
+  {u:'Carlos V.',h:'@carlosv',f:'🇲🇽',col:'#EF4444',amt:'+$3,180',plan:'LP Farming',txt:'PancakeSwap integration is seamless. Auto-compound doing the heavy lifting.',bars:[35,50,60,65,70,78,82,88]},
+  {u:'Priya M.',h:'@priya_bsc',f:'🇮🇳',col:'#06B6D4',amt:'+$2,340',plan:'Growth',txt:'Three months of daily payouts. Referral network growing fast. Very impressed.',bars:[45,55,60,70,75,80,85,90]},
+];
+function buildProof(){
+  const g=document.getElementById('pgrid');
+  g.innerHTML=PROOF.map(p=>{
+    const mx=Math.max(...p.bars);
+    const bars=p.bars.map(v=>`<div style="flex:1;min-height:3px;height:${(v/mx*100)}%;border-radius:3px 3px 0 0;background:${p.col};opacity:.65"></div>`).join('');
+    return`<div class="pcard">
+      <div class="pimg">
+        <div style="display:flex;align-items:flex-end;gap:4px;height:88px;padding:10px 16px;width:100%">${bars}</div>
+        <div style="font-family:'Orbitron',monospace;font-size:1.25rem;font-weight:900;color:${p.col}">${p.amt}</div>
+      </div>
+      <div class="pbody">
+        <div class="pusr">
+          <div class="pavt" style="background:${p.col}">${p.u.split(' ').map(n=>n[0]).join('')}</div>
+          <div><div class="pun">${p.u} ${p.f}</div><div class="ph">${p.h} · ${p.plan} Plan</div></div>
+        </div>
+        <div class="ptxt">"${p.txt}"</div>
+        <div class="pamt">${p.amt} earned</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── ROI CALC ── */
+function calcROI(){
+  const amt=+document.getElementById('rAmt').value;
+  const dur=+document.getElementById('rDur').value;
+  const apy=+document.getElementById('rPlan').value;
+  document.getElementById('rAmtL').textContent='$'+amt.toLocaleString();
+  document.getElementById('rDurL').textContent=dur+(dur===1?' month':' months');
+  const earn=(amt*apy/100)*(dur/12);
+  const daily=earn/(dur*30);
+  document.getElementById('rEarn').textContent='$'+earn.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  document.getElementById('rTotal').textContent='$'+(amt+earn).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  document.getElementById('rDaily').textContent='$'+daily.toFixed(2);
+}
+
+/* ── LANG ── */
+function setLang(l){
+  document.querySelectorAll('.lb').forEach(b=>b.classList.toggle('active',b.textContent===l.toUpperCase()));
+  showToast('🌐','Language: '+l.toUpperCase());
+}
+function detectLang(){
+  const n=(navigator.language||'en').substring(0,2).toLowerCase();
+  if(['fr','es','pt','zh'].includes(n)) setLang(n);
+}
+
+/* ══════════════════════════════════
+   AUTH — REGISTER / LOGIN
+   ══════════════════════════════════ */
+function openAuth(){ document.getElementById('authModal').classList.add('show') }
+function closeAuth(){ document.getElementById('authModal').classList.remove('show') }
+function switchTab(t){
+  document.getElementById('tReg').classList.toggle('active',t==='r');
+  document.getElementById('tLog').classList.toggle('active',t==='l');
+  document.getElementById('fReg').style.display=t==='r'?'block':'none';
+  document.getElementById('fLog').style.display=t==='l'?'block':'none';
+}
+
+function doRegister(){
+  const name=document.getElementById('rName').value.trim();
+  const email=document.getElementById('rEmail').value.trim().toLowerCase();
+  const pass=document.getElementById('rPass').value;
+  const ref=document.getElementById('rRef').value.trim();
+  if(!name||!email||!pass){showToast('⚠️','Please fill all required fields.');return}
+  if(pass.length<8){showToast('⚠️','Password must be 8+ characters.');return}
+  const users=getUsers();
+  if(users[email]){showToast('⚠️','Account already exists. Please login.');switchTab('l');return}
+  const wallet=genWallet();
+  const myRef=genRef();
+  users[email]={
+    name,email,passHash:hashPass(pass),wallet,ref:myRef,
+    balance:0,earned:0,plan:null,planApy:0,planStart:null,
+    activity:[{ico:'🎉',bg:'rgba(212,175,55,.1)',name:'Account Created',date:today(),amt:'Welcome!',cls:'',status:'done'}]
+  };
+  // referral bonus — credit referrer 5%
+  if(ref){
+    const referrer=Object.values(users).find(u=>u.ref===ref);
+    if(referrer){
+      referrer.activity.unshift({ico:'🎁',bg:'rgba(34,197,94,.1)',name:'Referral Bonus',date:today(),amt:'+$0 (on investment)',cls:'g',status:'done'});
+    }
+  }
+  saveUsers(users);
+  setSession(email);
+  closeAuth();
+  showToast('🎉','Welcome! Your wallet has been created — check your dashboard.');
+  setTimeout(()=>loadDashboard(email),700);
+}
+
+function doLogin(){
+  const email=document.getElementById('lEmail').value.trim().toLowerCase();
+  const pass=document.getElementById('lPass').value;
+  if(!email||!pass){showToast('⚠️','Please enter email and password.');return}
+  const users=getUsers();
+  const u=users[email];
+  if(!u||u.passHash!==hashPass(pass)){showToast('❌','Incorrect email or password.');return}
+  setSession(email);
+  closeAuth();
+  showToast('👋','Welcome back, '+u.name.split(' ')[0]+'!');
+  setTimeout(()=>loadDashboard(email),600);
+}
+
+function logout(){
+  stopProfitTicker();
+  clearSession();
+  document.getElementById('dashboard').classList.remove('show');
+  document.getElementById('navBtn').textContent='Get Started';
+  showToast('👋','Logged out. See you soon!');
+}
+
+/* ══════════════════════════════════
+   DASHBOARD LOADER
+   ══════════════════════════════════ */
+function loadDashboard(email){
+  if(!email){const s=getSession();if(!s)return;email=s.email}
+  const users=getUsers();
+  const u=users[email];
+  if(!u) return;
+
+  document.getElementById('dashboard').classList.add('show');
+  document.getElementById('navBtn').textContent='⬛ '+u.name.split(' ')[0];
+  document.getElementById('dName').textContent=u.name;
+  document.getElementById('dWalletFull').textContent=u.wallet;
+  document.getElementById('dWalletShort').textContent=shortAddr(u.wallet);
+  document.getElementById('refCode').textContent=u.ref;
+
+  const bal=u.balance||0;
+  const earned=u.earned||0;
+  const planApy=u.planApy||0;
+
+  document.getElementById('mBal').textContent=fmt(bal);
+  document.getElementById('mEarned').textContent=fmt(earned);
+  document.getElementById('mEarnedDay').textContent='+'+fmt(earned*.034)+' today';
+  document.getElementById('mPlan').textContent=u.plan||'— None';
+  document.getElementById('mPlanAPY').textContent=u.plan?(u.plan+' · '+planApy+'% APY · Active'):'Select a plan to start earning';
+  document.getElementById('mRef').textContent=fmt(bal*.07);
+  document.getElementById('wAvail').textContent=fmt(bal);
+  document.getElementById('wEarned2').textContent=fmt(earned);
+
+  buildMBar('mBarBal',[40,55,48,65,72,68,80,90,85,95],'#D4AF37');
+
+  // profit ticker
+  if(u.plan&&u.planApy>0){
+    startProfitTicker(bal,u.planApy);
+  } else {
+    document.getElementById('profitticker').classList.remove('show');
+  }
+
+  buildActivity(u);
+  document.getElementById('dashboard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ── MINI BAR CHART ── */
+function buildMBar(id,data,color){
+  const el=document.getElementById(id);if(!el)return;
+  const mx=Math.max(...data);
+  el.innerHTML=data.map(v=>`<div class="mb" style="height:${(v/mx*100)}%;background:${color}"></div>`).join('');
+}
+
+/* ── ACTIVITY FEED ── */
+function buildActivity(u){
+  const acts=u.activity||[];
+  const body=document.getElementById('actBody');
+  if(!acts.length){body.innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--mu);font-size:.84rem">No activity yet. Make a deposit to get started.</div>';return}
+  body.innerHTML=acts.slice(0,15).map(a=>`
+    <div class="acrow">
+      <div class="aci" style="background:${a.bg}">${a.ico}</div>
+      <div class="acinfo">
+        <div class="acn">${a.name}<span class="bst ${a.status==='pending'?'bpend':'bdone'}">${a.status}</span></div>
+        <div class="acd">${a.date}</div>
+      </div>
+      <div class="acamt ${a.cls}">${a.amt}</div>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════
+   LIVE PROFIT TICKER
+   ══════════════════════════════════ */
+let profitInterval=null;
+let profitBase=0;
+function startProfitTicker(balance,apy){
+  stopProfitTicker();
+  profitBase=balance;
+  const el=document.getElementById('profitticker');
+  el.classList.add('show');
+  const perSec=(balance*apy/100)/(365*24*3600);
+  const perHr=perSec*3600;
+  let acc=0;
+  document.getElementById('ptrate').textContent='+'+fmt(perHr)+' / hour · '+apy+'% APY';
+  profitInterval=setInterval(()=>{
+    acc+=perSec;
+    document.getElementById('ptval').textContent='$'+acc.toFixed(5);
+  },1000);
+}
+function stopProfitTicker(){
+  if(profitInterval){clearInterval(profitInterval);profitInterval=null}
+}
+
+/* ══════════════════════════════════
+   DASH TABS
+   ══════════════════════════════════ */
+function switchDTab(tab){
+  ['activity','deposit','withdraw','admin'].forEach(t=>{
+    document.getElementById('dp-'+t).style.display=t===tab?'block':'none';
+    document.getElementById('dt-'+t).classList.toggle('active',t===tab);
+  });
+}
+function reqDashTab(tab){
+  const s=getSession();
+  if(!s){openAuth();return}
+  loadDashboard(s.email);
+  setTimeout(()=>switchDTab(tab),500);
+}
+
+/* ══════════════════════════════════
+   COPY HELPERS
+   ══════════════════════════════════ */
+function copyWallet(){
+  const s=getSession();if(!s)return;
+  const u=getUsers()[s.email];if(!u)return;
+  navigator.clipboard.writeText(u.wallet).then(()=>showToast('📋','Wallet address copied!')).catch(()=>showToast('📋',u.wallet.slice(0,20)+'...'));
+}
+function copyDepAddr(){
+  navigator.clipboard.writeText(DEPOSIT_ADDR).then(()=>showToast('📋','Deposit address copied!')).catch(()=>showToast('📋',DEPOSIT_ADDR));
+}
+function copyRef(){
+  const el=document.getElementById('refCode');
+  navigator.clipboard.writeText(el.textContent).then(()=>showToast('📋','Referral code copied!')).catch(()=>showToast('📋',el.textContent));
+}
+
+/* ══════════════════════════════════
+   PLAN MODAL
+   ══════════════════════════════════ */
+let cpPlan={name:'',apy:12,min:100,lock:30};
+function selectPlan(name,apy,min,lock){
+  const s=getSession();if(!s){openAuth();return}
+  cpPlan={name,apy,min,lock};
+  document.getElementById('pmTitle').textContent='Invest: '+name+' Plan';
+  document.getElementById('pmSub').textContent='Earning '+apy+'% APY · Min $'+min.toLocaleString()+' · '+lock+'-day lock';
+  document.getElementById('pmAmt').value='';
+  document.getElementById('pmPreview').style.display='none';
+  document.getElementById('planModal').classList.add('show');
+}
+function closePlanModal(){ document.getElementById('planModal').classList.remove('show') }
+function updatePMPreview(){
+  const v=parseFloat(document.getElementById('pmAmt').value);
+  const p=document.getElementById('pmPreview');
+  if(!v){p.style.display='none';return}
+  p.style.display='block';
+  const monthly=(v*cpPlan.apy/100)/12;
+  document.getElementById('pmMonthly').textContent=fmt(monthly);
+  document.getElementById('pmTotal').textContent=fmt(v+monthly*3);
+}
+function confirmPlan(){
+  const amt=parseFloat(document.getElementById('pmAmt').value);
+  if(!amt||amt<cpPlan.min){showToast('⚠️','Minimum for this plan is $'+cpPlan.min.toLocaleString());return}
+  const s=getSession();if(!s)return;
+  // Register deposit request (status=pending — admin must approve)
+  const deps=getDeposits();
+  const users=getUsers();
+  const u=users[s.email];
+  deps.push({id:'DEP'+uid(),userEmail:s.email,userName:u.name,amount:amt,plan:cpPlan.name,planApy:cpPlan.apy,date:today(),status:'pending',txHash:''});
+  saveDeposits(deps);
+  // Add to user activity as pending
+  u.activity.unshift({ico:'📥',bg:'rgba(59,130,246,.1)',name:'Deposit Request — '+cpPlan.name+' Plan — '+fmt(amt),date:today(),amt:fmt(amt)+' (pending)',cls:'',status:'pending'});
+  users[s.email]=u;
+  saveUsers(users);
+  closePlanModal();
+  showToast('✅','Investment request submitted! Contact admin to complete deposit. Admin will credit your balance after verification.');
+  setTimeout(()=>{switchDTab('deposit')},900);
+  buildActivity(users[s.email]);
+}
+
+/* ══════════════════════════════════
+   WITHDRAWAL
+   ══════════════════════════════════ */
+function updateWPreview(){
+  const v=parseFloat(document.getElementById('wAmt').value);
+  const p=document.getElementById('wPreview');
+  if(!v||v<10){p.style.display='none';return}
+  p.style.display='block';
+  const fee=v*.02;
+  document.getElementById('wFee').textContent='-'+fmt(fee);
+  document.getElementById('wReceive').textContent=fmt(v-fee);
+}
+function submitWithdraw(){
+  const s=getSession();if(!s)return;
+  const amt=parseFloat(document.getElementById('wAmt').value);
+  const addr=document.getElementById('wAddr').value.trim();
+  const coin=document.getElementById('wCoin').value;
+  if(!amt||amt<10){showToast('⚠️','Minimum withdrawal is $10.');return}
+  if(!addr||!addr.startsWith('0x')||addr.length<40){showToast('⚠️','Enter a valid BSC wallet address (starts with 0x, 42 chars).');return}
+  const users=getUsers();
+  const u=users[s.email];
+  if(amt>u.balance){showToast('⚠️','Insufficient balance. Available: '+fmt(u.balance));return}
+  // deduct balance, add withdrawal record pending admin
+  u.balance-=amt;
+  const withs=getWithdrawals();
+  withs.push({id:'WIT'+uid(),userEmail:s.email,userName:u.name,amount:amt,coin,address:addr,date:today(),status:'pending'});
+  saveWithdrawals(withs);
+  u.activity.unshift({ico:'📤',bg:'rgba(239,68,68,.1)',name:'Withdrawal — '+coin+' — '+shortAddr(addr),date:today(),amt:'-'+fmt(amt),cls:'r',status:'pending'});
+  users[s.email]=u;
+  saveUsers(users);
+  document.getElementById('wAmt').value='';
+  document.getElementById('wAddr').value='';
+  document.getElementById('wPreview').style.display='none';
+  showToast('📤','Withdrawal submitted! Admin processes within 24–48h.');
+  loadDashboard(s.email);
+}
+
+/* ══════════════════════════════════
+   ADMIN PANEL
+   ══════════════════════════════════ */
+function checkAdmin(){
+  if(document.getElementById('aPass').value===ADMIN_PASS){
+    document.getElementById('adminLock').style.display='none';
+    document.getElementById('adminPanel').style.display='block';
+    loadAdmin();
+    showToast('🔐','Admin panel unlocked.');
+  } else {
+    showToast('❌','Incorrect password.');
+    document.getElementById('aPass').value='';
+  }
+}
+
+function loadAdmin(){
+  const deps=getDeposits();
+  const withs=getWithdrawals();
+  const users=getUsers();
+  const totalFunds=Object.values(users).reduce((s,u)=>s+(u.balance||0),0);
+  document.getElementById('aPendDep').textContent=deps.filter(d=>d.status==='pending').length;
+  document.getElementById('aTotalFunds').textContent=fmtBig(totalFunds);
+  document.getElementById('aPendWith').textContent=withs.filter(w=>w.status==='pending').length;
+
+  // Deposits table
+  document.getElementById('aDepBody').innerHTML=deps.length?deps.map(d=>`
+    <tr id="dep${d.id}">
+      <td>${d.userName}<br><span style="font-size:.68rem;color:var(--mu)">${d.userEmail}</span></td>
+      <td style="font-family:'Space Mono';color:var(--gr)">${fmt(d.amount)}</td>
+      <td>${d.plan} (${d.planApy}%)</td>
+      <td>${d.date}</td>
+      <td><span class="bst ${d.status==='pending'?'bpend':d.status==='credited'?'bdone':''}">${d.status}</span></td>
+      <td>${d.status==='pending'
+        ?`<button class="aact acred" onclick="adminCreditDep('${d.id}')">✓ Credit</button>
+           <button class="aact arej" onclick="adminRejectDep('${d.id}')">✗ Reject</button>`
+        :'—'}</td>
+    </tr>`).join('')
+    :'<tr><td colspan="6" style="color:var(--mu);text-align:center;padding:1rem">No deposit requests yet</td></tr>';
+
+  // Withdrawals table
+  document.getElementById('aWithBody').innerHTML=withs.length?withs.map(w=>`
+    <tr id="wit${w.id}">
+      <td>${w.userName}<br><span style="font-size:.68rem;color:var(--mu)">${w.userEmail}</span></td>
+      <td style="font-family:'Space Mono';color:var(--rd)">-${fmt(w.amount)}</td>
+      <td>${w.coin}</td>
+      <td style="font-family:'Space Mono';font-size:.7rem;color:var(--mu)">${shortAddr(w.address)}</td>
+      <td>${w.date}</td>
+      <td>${w.status==='pending'
+        ?`<button class="aact appr" onclick="adminApproveWith('${w.id}')">✓ Approve</button>
+           <button class="aact arej" onclick="adminRejectWith('${w.id}')">✗ Reject</button>`
+        :`<span class="bst bdone">${w.status}</span>`}</td>
+    </tr>`).join('')
+    :'<tr><td colspan="6" style="color:var(--mu);text-align:center;padding:1rem">No withdrawal requests yet</td></tr>';
+}
+
+/* Admin: approve deposit → credit user balance, activate plan, start profit */
+function adminCreditDep(id){
+  const deps=getDeposits();
+  const dep=deps.find(d=>d.id===id);if(!dep)return;
+  dep.status='credited';
+  saveDeposits(deps);
+  const users=getUsers();
+  const u=users[dep.userEmail];
+  if(u){
+    u.balance=(u.balance||0)+dep.amount;
+    u.plan=dep.plan;
+    u.planApy=dep.planApy;
+    u.planStart=today();
+    // Update pending activity entry to done
+    const ai=u.activity.findIndex(a=>a.status==='pending'&&a.name.includes('Deposit Request')&&a.name.includes(dep.plan));
+    if(ai>=0){u.activity[ai].status='done';u.activity[ai].amt='+'+fmt(dep.amount)+' credited';}
+    u.activity.unshift({ico:'💰',bg:'rgba(34,197,94,.1)',name:'Deposit Credited — '+dep.plan+' Plan',date:today(),amt:'+'+fmt(dep.amount),cls:'g',status:'done'});
+    users[dep.userEmail]=u;
+    saveUsers(users);
+  }
+  showToast('💰','User credited '+fmt(dep.amount)+'. Plan activated: '+dep.plan+'.');
+  // If current session is this user, refresh dashboard
+  const s=getSession();
+  if(s&&s.email===dep.userEmail) loadDashboard(s.email);
+  loadAdmin();
+}
+
+function adminRejectDep(id){
+  const deps=getDeposits();
+  const dep=deps.find(d=>d.id===id);if(!dep)return;
+  dep.status='rejected';
+  saveDeposits(deps);
+  const users=getUsers();
+  const u=users[dep.userEmail];
+  if(u){
+    const ai=u.activity.findIndex(a=>a.status==='pending'&&a.name.includes('Deposit Request'));
+    if(ai>=0){u.activity[ai].status='rejected';u.activity[ai].cls='r';}
+    users[dep.userEmail]=u;saveUsers(users);
+  }
+  showToast('❌','Deposit request rejected.');
+  loadAdmin();
+}
+
+/* Admin: approve withdrawal */
+function adminApproveWith(id){
+  const withs=getWithdrawals();
+  const w=withs.find(x=>x.id===id);if(!w)return;
+  w.status='approved';
+  saveWithdrawals(withs);
+  const users=getUsers();
+  const u=users[w.userEmail];
+  if(u){
+    const ai=u.activity.findIndex(a=>a.status==='pending'&&a.name.includes('Withdrawal'));
+    if(ai>=0)u.activity[ai].status='done';
+    users[w.userEmail]=u;saveUsers(users);
+  }
+  showToast('✅','Withdrawal approved and processed.');
+  const s=getSession();
+  if(s&&s.email===w.userEmail) loadDashboard(s.email);
+  loadAdmin();
+}
+
+function adminRejectWith(id){
+  const withs=getWithdrawals();
+  const w=withs.find(x=>x.id===id);if(!w)return;
+  w.status='rejected';
+  saveWithdrawals(withs);
+  // refund balance
+  const users=getUsers();
+  const u=users[w.userEmail];
+  if(u){
+    u.balance=(u.balance||0)+w.amount;
+    const ai=u.activity.findIndex(a=>a.status==='pending'&&a.name.includes('Withdrawal'));
+    if(ai>=0){u.activity[ai].status='rejected';u.activity[ai].amt='Rejected — '+fmt(w.amount)+' refunded';}
+    u.activity.unshift({ico:'🔄',bg:'rgba(245,158,11,.1)',name:'Withdrawal Rejected — Refunded',date:today(),amt:'+'+fmt(w.amount),cls:'g',status:'done'});
+    users[w.userEmail]=u;saveUsers(users);
+  }
+  showToast('🔄','Withdrawal rejected. Balance refunded to user.');
+  const s=getSession();
+  if(s&&s.email===w.userEmail) loadDashboard(s.email);
+  loadAdmin();
+}
+
+/* Admin: manual credit (direct) */
+function adminManualCredit(){
+  const email=document.getElementById('aCredEmail').value.trim().toLowerCase();
+  const amt=parseFloat(document.getElementById('aCredAmt').value);
+  const plan=document.getElementById('aCredPlan').value;
+  if(!email||!amt||amt<=0){showToast('⚠️','Enter valid email and amount.');return}
+  const users=getUsers();
+  const u=users[email];
+  if(!u){showToast('❌','User not found: '+email);return}
+  u.balance=(u.balance||0)+amt;
+  if(plan){u.plan=plan;u.planApy=PLAN_APYS[plan]||0;}
+  u.activity.unshift({ico:'💰',bg:'rgba(34,197,94,.1)',name:'Admin Credit'+(plan?' — '+plan+' Plan':''),date:today(),amt:'+'+fmt(amt),cls:'g',status:'done'});
+  users[email]=u;
+  saveUsers(users);
+  document.getElementById('aCredEmail').value='';
+  document.getElementById('aCredAmt').value='';
+  document.getElementById('aCredPlan').value='';
+  showToast('💰','Credited '+fmt(amt)+' to '+u.name+(plan?' | Plan: '+plan:'')+'.');
+  const s=getSession();
+  if(s&&s.email===email) loadDashboard(email);
+  loadAdmin();
+}
+
+/* ══════════════════════════════════
+   LIVE SUPPORT BOT
+   ══════════════════════════════════ */
+let sOpen=false;
+function toggleS(){
+  sOpen=!sOpen;
+  document.getElementById('swin').classList.toggle('show',sOpen);
+  document.getElementById('stog').textContent=sOpen?'✕':'💬';
+}
+const BOTS={
+  deposit:'To deposit:\n1️⃣ Contact admin first\n📱 Telegram: @ECEcoin18\n✉️ support@efikcoin.xyz\n2️⃣ Send BNB on BSC only to:\n'+DEPOSIT_ADDR+'\n3️⃣ Share TxHash with admin.\n4️⃣ Admin credits your dashboard within 1–3 hours. ✅',
+  withdraw:'To withdraw:\nGo to Dashboard → Withdraw tab.\nEnter amount, select coin (BNB/USDT/BUSD), enter your BSC wallet address.\nAdmin processes within 24–48 hours. 📤',
+  plans:'Our plans:\n🌱 Seed — 12% APY · Min $100 · 30-day lock\n📈 Growth — 28% APY · Min $500 · 60-day lock\n👑 Sovereign — 65% APY · Min $2,000 · 90-day lock\n⚡ LP Farming — 45% APY · Min $1,000 · Flexible\nAll earn daily rewards!',
+  contact:'📱 Telegram: @ECEcoin18\n✉️ Email: support@efikcoin.xyz\nAdmin is online every day and typically replies within minutes.',
+  default:'Thank you for your message! For the fastest help:\n📱 Telegram: @ECEcoin18\n✉️ support@efikcoin.xyz\nAdmin responds quickly.',
+};
+function getBotReply(msg){
+  const m=msg.toLowerCase();
+  if(m.includes('deposit')||m.includes('send')||m.includes('fund')||m.includes('pay'))return BOTS.deposit;
+  if(m.includes('withdraw')||m.includes('cash'))return BOTS.withdraw;
+  if(m.includes('plan')||m.includes('apy')||m.includes('invest')||m.includes('return')||m.includes('earn'))return BOTS.plans;
+  if(m.includes('contact')||m.includes('admin')||m.includes('support')||m.includes('help')||m.includes('telegram'))return BOTS.contact;
+  return BOTS.default;
+}
+function addMsg(txt,type){
+  const b=document.getElementById('sbody');
+  const d=document.createElement('div');d.className='smsg '+type;
+  d.style.whiteSpace='pre-wrap';d.textContent=txt;
+  b.appendChild(d);b.scrollTop=b.scrollHeight;
+}
+function sendS(){
+  const inp=document.getElementById('sinp');const msg=inp.value.trim();if(!msg)return;
+  addMsg(msg,'usr');inp.value='';
+  setTimeout(()=>addMsg(getBotReply(msg),'bot'),750);
+}
+function qr(msg){addMsg(msg,'usr');setTimeout(()=>addMsg(getBotReply(msg),'bot'),750);}
+
+/* ── TOAST ── */
+function showToast(icon,msg){
+  document.getElementById('tIco').textContent=icon;
+  document.getElementById('tMsg').textContent=msg;
+  const t=document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3800);
+}
+
+/* ── SCROLL REVEAL ── */
+function initReveal(){
+  const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')}),{threshold:.1});
+  document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+}
+
+/* ══════════════════════════════════
+   INIT
+   ══════════════════════════════════ */
+window.addEventListener('DOMContentLoaded',()=>{
+  detectLang();
+  initStars();
+  buildTicker();
+  buildCoins();
+  buildProof();
+  calcROI();
+  initReveal();
+  setTimeout(runStats,500);
+
+  // Auto-restore session
+  const s=getSession();
+  if(s&&(Date.now()-s.ts<7*24*3600*1000)){
+    setTimeout(()=>loadDashboard(s.email),400);
+  }
+
+  // Close modals on overlay click
+  document.getElementById('authModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeAuth()});
+  document.getElementById('planModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closePlanModal()});
+});
+</script>
+</body>
+</html>
