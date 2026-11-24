@@ -3,1392 +3,545 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="description" content="ChainRecover — blockchain forensics and crypto asset recovery. Trace stolen funds, recover lost wallets, get court-ready forensic reports." />
-<title>ChainRecover — Blockchain Recovery & Crypto Forensics</title>
+<meta name="description" content="ChainRecover — blockchain forensics and crypto asset recovery. Trace stolen funds, recover lost wallets." />
+<title>ChainRecover — Blockchain Recovery & Forensics</title>
 <style>
-/* ================= BASE ================= */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#05070e; --bg2:#080d18;
-  --card:rgba(255,255,255,.045); --card2:rgba(255,255,255,.07);
-  --border:rgba(255,255,255,.10);
-  --text:#e9eefb; --muted:#93a1b8;
-  --acc:#00e5a0; --acc2:#3b82f6; --acc3:#8b5cf6;
-  --gold:#ffc857;
-  --radius:18px; --max:1180px;
+  --bg:#05070e;--card:rgba(255,255,255,.045);--border:rgba(255,255,255,.1);
+  --text:#e9eefb;--muted:#93a1b8;--acc:#00e5a0;--acc2:#3b82f6;--acc3:#8b5cf6;--gold:#ffc857;
 }
-html{scroll-behavior:smooth;scroll-padding-top:90px}
-body{
-  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-  background:var(--bg); color:var(--text); line-height:1.6; overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
-  top:0 !important; /* fix Google Translate banner offset */
-}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;top:0 !important;}
 img,svg{display:block;max-width:100%}
 a{color:inherit;text-decoration:none}
 button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
-input,select,textarea{font:inherit;color:inherit}
-::selection{background:rgba(0,229,160,.3)}
-.wrap{width:100%;max-width:var(--max);margin:0 auto;padding:0 22px}
+input,select,textarea{font:inherit;color:inherit;outline:none;}
+.wrap{width:100%;max-width:1180px;margin:0 auto;padding:0 22px}
 
-/* ================= BG FX ================= */
-.bg-fx{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
-.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5}
-.orb.a{width:520px;height:520px;background:radial-gradient(circle,#00e5a0,transparent 65%);top:-160px;left:-120px;animation:float 18s ease-in-out infinite}
-.orb.b{width:560px;height:560px;background:radial-gradient(circle,#3b82f6,transparent 65%);top:20%;right:-180px;animation:float 22s ease-in-out infinite reverse}
-.orb.c{width:480px;height:480px;background:radial-gradient(circle,#8b5cf6,transparent 65%);bottom:-200px;left:35%;animation:float 26s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-50px) scale(1.12)}}
-.grid-fx{position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
-                   linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
-  background-size:64px 64px;
-  mask-image:radial-gradient(circle at 50% 0%,#000 0%,transparent 75%);
-  -webkit-mask-image:radial-gradient(circle at 50% 0%,#000 0%,transparent 75%);
-}
+/* BACKGROUND CANVAS */
+#particleCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; opacity: 0.4; }
 
-/* ================= HEADER ================= */
-header{position:fixed;top:0;left:0;right:0;z-index:100;transition:.35s ease}
-header.scrolled{background:rgba(5,7,14,.84);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
+/* NAV */
+header{position:fixed;top:0;left:0;right:0;z-index:100;transition:.35s ease;border-bottom:1px solid transparent;}
+header.scrolled{background:rgba(5,7,14,.85);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
 .nav{display:flex;align-items:center;justify-content:space-between;height:76px;gap:14px}
-.logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.4px;font-size:1.05rem;flex:0 0 auto}
-.logo .mark{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;
-  background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 6px 22px rgba(0,229,160,.35)}
-.logo .mark svg{width:20px;height:20px;stroke:#04120c;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.logo span small{display:block;font-size:.62rem;font-weight:600;letter-spacing:2px;color:var(--muted);text-transform:uppercase;line-height:1}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.05rem}
+.logo .mark{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 6px 22px rgba(0,229,160,.35)}
+.logo .mark svg{width:20px;height:20px;stroke:#04120c;stroke-width:2.4;fill:none}
+.logo small{display:block;font-size:.6rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
 .nav-links{display:flex;align-items:center;gap:2px}
-.nav-links a{padding:9px 12px;border-radius:10px;font-size:.87rem;font-weight:500;color:var(--muted);transition:.2s;white-space:nowrap}
-.nav-links a:hover,.nav-links a.active{color:var(--text);background:rgba(255,255,255,.06)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:13px 24px;border-radius:12px;
-  font-weight:700;font-size:.92rem;letter-spacing:.1px;transition:.25s;white-space:nowrap;border:1px solid transparent}
+.nav-links a{padding:9px 12px;border-radius:10px;font-size:.87rem;font-weight:500;color:var(--muted);transition:.2s}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,.06)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:13px 24px;border-radius:12px;font-weight:700;font-size:.92rem;transition:.25s;border:1px solid transparent}
 .btn-primary{background:linear-gradient(135deg,var(--acc),#00b8d4);color:#03130d;box-shadow:0 10px 30px -8px rgba(0,229,160,.6)}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 38px -8px rgba(0,229,160,.8)}
 .btn-ghost{background:rgba(255,255,255,.05);border-color:var(--border);color:var(--text)}
 .btn-ghost:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
-.btn-sm{padding:10px 16px;font-size:.84rem}
-.nav-cta{display:flex;align-items:center;gap:9px;flex:0 0 auto}
+.nav-cta{display:flex;align-items:center;gap:10px}
 
-/* -------- language pill -------- */
-.lang-pill{display:flex;align-items:center;gap:7px;padding:5px 9px;border-radius:11px;
-  background:rgba(255,255,255,.05);border:1px solid var(--border);transition:.25s}
-.lang-pill:hover{border-color:rgba(0,229,160,.4)}
-.lang-pill>svg{width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
-#google_translate_element{line-height:1;min-width:0}
-.goog-te-gadget{font-family:inherit!important;font-size:0!important;color:transparent!important;line-height:1!important}
-.goog-te-gadget .goog-te-combo{
-  background:transparent;color:var(--text);border:none;outline:none;cursor:pointer;
-  font-family:inherit;font-size:.79rem;font-weight:600;padding:2px 0;width:112px}
-.goog-te-gadget .goog-te-combo option{background:#0a0f1c;color:#e9eefb}
-.goog-te-gadget span,.goog-logo-link,.goog-te-gadget img{display:none!important}
-iframe.goog-te-banner-frame,iframe.goog-te-balloon-frame{display:none!important}
-#goog-gt-tt,.goog-text-highlight{display:none!important;background:none!important;box-shadow:none!important}
-.lang-fallback{font-size:.79rem;font-weight:700;color:var(--acc);white-space:nowrap}
+/* TRANSLATE */
+.lang-pill{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:11px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
+.goog-te-gadget{font-family:inherit!important;font-size:0!important;color:transparent!important}
+.goog-te-gadget .goog-te-combo{background:transparent;color:var(--text);border:none;font-size:.8rem;font-weight:600;width:90px;cursor:pointer}
+.goog-te-gadget .goog-te-combo option{background:#0a0f1c;color:#fff}
+.goog-logo-link,.goog-te-gadget span,iframe.goog-te-banner-frame{display:none!important}
 
-.burger{display:none;width:42px;height:42px;border-radius:11px;border:1px solid var(--border);
-  background:rgba(255,255,255,.05);place-items:center;flex:0 0 auto}
-.burger span{display:block;width:18px;height:2px;background:var(--text);border-radius:2px;position:relative;transition:.3s}
-.burger span::before,.burger span::after{content:'';position:absolute;left:0;width:18px;height:2px;background:var(--text);border-radius:2px;transition:.3s}
-.burger span::before{top:-6px}.burger span::after{top:6px}
-.burger.open span{background:transparent}
-.burger.open span::before{top:0;transform:rotate(45deg)}
-.burger.open span::after{top:0;transform:rotate(-45deg)}
-
-/* ================= HERO ================= */
-.hero{padding:150px 0 90px;position:relative}
-.hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:60px;align-items:center}
-.badge{display:inline-flex;align-items:center;gap:9px;padding:7px 15px 7px 9px;border-radius:999px;
-  background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.28);font-size:.78rem;font-weight:600;color:#8df3d4}
-.badge .pulse{width:8px;height:8px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 0 rgba(0,229,160,.7);animation:pulse 2s infinite}
+/* HERO */
+.hero{padding:150px 0 90px}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:9px;padding:7px 15px;border-radius:999px;background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.28);font-size:.78rem;font-weight:600;color:#8df3d4}
+.badge .pulse{width:8px;height:8px;border-radius:50%;background:var(--acc);animation:pulse 2s infinite}
 @keyframes pulse{70%{box-shadow:0 0 0 9px rgba(0,229,160,0)}100%{box-shadow:0 0 0 0 rgba(0,229,160,0)}}
-h1{font-size:clamp(2.35rem,5vw,3.9rem);line-height:1.08;letter-spacing:-2px;font-weight:800;margin:22px 0 20px}
-.grad{background:linear-gradient(100deg,var(--acc) 0%,#37d6ff 45%,var(--acc3) 100%);
-  -webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p.lead{font-size:1.09rem;color:var(--muted);max-width:540px;margin-bottom:32px}
+h1{font-size:clamp(2.4rem,5vw,4rem);line-height:1.08;letter-spacing:-2px;font-weight:800;margin:22px 0 20px}
+.grad{background:linear-gradient(100deg,var(--acc),#37d6ff,var(--acc3));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{font-size:1.1rem;color:var(--muted);margin-bottom:32px;max-width:540px}
 .hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:34px}
 .trust{display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
 .trust .item{display:flex;align-items:center;gap:7px}
-.trust svg{width:15px;height:15px;stroke:var(--acc);stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
 
-.case-card{background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
-  border:1px solid var(--border);border-radius:22px;padding:24px;backdrop-filter:blur(20px);
-  box-shadow:0 30px 70px -30px rgba(0,0,0,.9);position:relative;overflow:hidden}
-.case-card::after{content:'';position:absolute;inset:0;border-radius:22px;pointer-events:none;
-  background:linear-gradient(140deg,rgba(0,229,160,.16),transparent 45%)}
-.case-top{display:flex;align-items:center;gap:9px;font-size:.7rem;font-weight:800;letter-spacing:1.6px;color:#8df3d4;margin-bottom:20px;position:relative;z-index:1}
-.case-top .id{margin-left:auto;color:var(--muted);letter-spacing:.5px;font-weight:600}
-.live-dot{width:8px;height:8px;border-radius:50%;background:var(--acc);animation:pulse 2s infinite}
-.case-row{display:flex;justify-content:space-between;gap:16px;margin-bottom:16px;position:relative;z-index:1}
-.lbl{display:block;font-size:.68rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:3px}
-.val{font-size:1.28rem;font-weight:800;letter-spacing:-.6px}
-.val.green{color:var(--acc)}
-.bar{height:9px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden;margin-bottom:9px;position:relative;z-index:1}
-.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--acc),#37d6ff);animation:grow 1.8s cubic-bezier(.2,.8,.2,1) .4s forwards}
-@keyframes grow{to{width:var(--w)}}
-.case-foot{font-size:.78rem;color:var(--muted);margin-bottom:20px;position:relative;z-index:1}
-.mini-chart{display:flex;align-items:flex-end;gap:7px;height:64px;margin-bottom:18px;position:relative;z-index:1}
-.mini-chart span{flex:1;border-radius:6px 6px 3px 3px;background:linear-gradient(180deg,rgba(0,229,160,.85),rgba(59,130,246,.22));
-  animation:rise 1.1s cubic-bezier(.2,.8,.2,1) forwards;transform-origin:bottom;height:var(--h)}
-@keyframes rise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
-.case-steps{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--border);padding-top:16px;position:relative;z-index:1}
-.step-line{display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--muted)}
-.step-line .tick{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;
-  background:rgba(0,229,160,.15);border:1px solid rgba(0,229,160,.4)}
-.step-line .tick svg{width:10px;height:10px;stroke:var(--acc);stroke-width:3.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.step-line.done{color:var(--text)}
-
-/* ================= STATS ================= */
-.stats{border-top:1px solid var(--border);border-bottom:1px solid var(--border);
-  background:linear-gradient(180deg,rgba(255,255,255,.03),transparent)}
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;padding:46px 0}
-.stat{text-align:center;position:relative}
-.stat+.stat::before{content:'';position:absolute;left:-10px;top:12%;height:76%;width:1px;background:var(--border)}
-.stat b{display:block;font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:800;letter-spacing:-1.4px;
-  background:linear-gradient(100deg,#fff,#7fe8c8);-webkit-background-clip:text;background-clip:text;color:transparent}
-.stat small{font-size:.76rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:700}
-
-/* ================= SECTIONS ================= */
-section{padding:96px 0;position:relative}
+/* SECTIONS & CARDS */
+section{padding:96px 0;position:relative;}
 .head{max-width:680px;margin:0 auto 56px;text-align:center}
-.eyebrow{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:2.4px;text-transform:uppercase;color:var(--acc);margin-bottom:14px}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:2.4px;text-transform:uppercase;color:var(--acc);margin-bottom:14px;display:block}
 h2{font-size:clamp(1.85rem,3.6vw,2.7rem);line-height:1.15;letter-spacing:-1.4px;font-weight:800;margin-bottom:16px}
 .head p{color:var(--muted);font-size:1rem}
-
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-.card{background:linear-gradient(165deg,rgba(255,255,255,.06),rgba(255,255,255,.018));
-  border:1px solid var(--border);border-radius:var(--radius);padding:30px 26px;transition:.35s;position:relative;overflow:hidden}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(0,229,160,.55),transparent);opacity:0;transition:.35s}
-.card:hover{transform:translateY(-6px);border-color:rgba(0,229,160,.35);
-  background:linear-gradient(165deg,rgba(0,229,160,.09),rgba(255,255,255,.02));box-shadow:0 26px 50px -30px rgba(0,229,160,.5)}
-.card:hover::before{opacity:1}
-.icon{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;margin-bottom:20px;
-  background:linear-gradient(135deg,rgba(0,229,160,.18),rgba(59,130,246,.14));border:1px solid rgba(0,229,160,.24)}
-.icon svg{width:23px;height:23px;stroke:var(--acc);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.card h3{font-size:1.1rem;font-weight:700;letter-spacing:-.4px;margin-bottom:10px}
-.card p{font-size:.9rem;color:var(--muted);margin-bottom:18px}
-.card .more{font-size:.83rem;font-weight:700;color:var(--acc);display:inline-flex;align-items:center;gap:6px;transition:.25s}
-.card .more:hover{gap:11px}
-.card .more svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:30px 26px;transition:.3s;backdrop-filter:blur(10px);}
+.card:hover{transform:translateY(-6px);border-color:rgba(0,229,160,.35);background:rgba(0,229,160,.08);box-shadow:0 20px 40px -20px rgba(0,229,160,0.3);}
+.icon{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;margin-bottom:20px;background:rgba(0,229,160,.15);color:var(--acc);font-size:1.5rem}
+.card h3{font-size:1.1rem;font-weight:700;margin-bottom:10px}
+.card p{font-size:.9rem;color:var(--muted)}
 
-/* ================= PROOF GALLERY ================= */
+/* PROOF GALLERY */
 .proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-.proof{background:linear-gradient(165deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
-  border:1px solid var(--border);border-radius:20px;overflow:hidden;transition:.35s}
-.proof:hover{transform:translateY(-6px);border-color:rgba(0,229,160,.35);box-shadow:0 26px 50px -30px rgba(0,229,160,.45)}
-.shot-bar{display:flex;align-items:center;gap:6px;padding:10px 14px;background:rgba(0,0,0,.45);border-bottom:1px solid var(--border)}
-.shot-bar i{width:9px;height:9px;border-radius:50%;background:#3a475c}
-.shot-bar i:nth-child(1){background:#ff5f57}.shot-bar i:nth-child(2){background:#febc2e}.shot-bar i:nth-child(3){background:#28c840}
-.shot-bar span{margin-left:8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.68rem;color:#7f90a8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.shot-body{padding:16px 14px;background:rgba(3,6,13,.6);min-height:172px;display:flex;flex-direction:column;gap:9px;justify-content:center}
-.mono-row{display:flex;justify-content:space-between;gap:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.72rem;color:#8ea0b8}
-.mono-row .pos{color:var(--acc)}
-.mono-row .neg{color:#ff7a90}
-.proof-body{padding:18px 20px 22px}
-.proof-body h4{font-size:.98rem;font-weight:700;margin-bottom:6px}
-.proof-body p{font-size:.84rem;color:var(--muted)}
-.tag{display:inline-block;margin-top:12px;font-size:.68rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
-  padding:4px 10px;border-radius:99px;background:rgba(0,229,160,.14);color:#8df3d4;border:1px solid rgba(0,229,160,.3)}
-.cluster{width:100%;height:172px}
-.doc{background:rgba(3,6,13,.6);padding:16px 16px;min-height:172px;position:relative}
-.doc .line{height:7px;border-radius:4px;background:rgba(255,255,255,.09);margin-bottom:9px}
-.doc .line.w60{width:60%}.doc .line.w80{width:80%}.doc .line.w45{width:45%}.doc .line.w70{width:70%}
-.stamp{position:absolute;right:14px;bottom:14px;transform:rotate(-9deg);
-  border:2px solid var(--acc);color:var(--acc);border-radius:8px;padding:4px 12px;
-  font-size:.66rem;font-weight:900;letter-spacing:2px;background:rgba(0,229,160,.08)}
-.proof-note{text-align:center;font-size:.78rem;color:#6b7b93;margin-top:26px}
+.proof{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;backdrop-filter:blur(10px);}
+.shot-body{padding:16px;background:rgba(3,6,13,.6);min-height:160px;display:flex;flex-direction:column;gap:8px;justify-content:center;font-family:monospace;font-size:.75rem}
+.mono-row{display:flex;justify-content:space-between;color:#8ea0b8}
+.mono-row .pos{color:var(--acc)}.mono-row .neg{color:#ff7a90}
+.proof-body{padding:20px}
+.tag{display:inline-block;margin-top:10px;font-size:.68rem;font-weight:800;padding:4px 10px;border-radius:99px;background:rgba(0,229,160,.14);color:#8df3d4;border:1px solid rgba(0,229,160,.3)}
 
-/* ================= TESTIMONIALS ================= */
+/* TESTIMONIALS */
 .t-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-.t-card{background:linear-gradient(165deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
-  border:1px solid var(--border);border-radius:20px;padding:26px 24px;transition:.35s;display:flex;flex-direction:column}
-.t-card:hover{transform:translateY(-6px);border-color:rgba(0,229,160,.35);box-shadow:0 26px 50px -30px rgba(0,229,160,.45)}
+.t-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:26px;backdrop-filter:blur(10px);}
 .t-top{display:flex;align-items:center;gap:13px;margin-bottom:14px}
-.avatar{width:52px;height:52px;border-radius:50%;position:relative;overflow:hidden;flex:0 0 auto;
-  display:grid;place-items:center;background:linear-gradient(135deg,var(--acc2),var(--acc3));
-  color:#fff;font-weight:800;font-size:.95rem;letter-spacing:.5px;border:2px solid rgba(255,255,255,.14)}
-.avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.t-top h5{font-size:.95rem;font-weight:700;line-height:1.25}
-.t-top small{font-size:.73rem;color:var(--muted);display:block}
-.verified{margin-left:auto;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;
-  background:rgba(0,229,160,.16);border:1px solid rgba(0,229,160,.4)}
-.verified svg{width:11px;height:11px;stroke:var(--acc);fill:none;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
-.stars{color:var(--gold);font-size:.86rem;letter-spacing:2px;margin-bottom:10px}
-.t-card p{font-size:.88rem;color:#c3cee0;flex:1;margin-bottom:18px}
-.t-foot{border-top:1px solid var(--border);padding-top:14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.recovered{font-size:.74rem;font-weight:800;color:var(--acc)}
-.t-ref{font-size:.68rem;font-family:ui-monospace,Menlo,Consolas,monospace;color:#6b7b93}
+.avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.1);}
+.stars{color:var(--gold);font-size:1rem;margin-bottom:10px}
+.t-card p{font-size:.88rem;color:#c3cee0;margin-bottom:15px}
+.recovered{font-size:.75rem;font-weight:800;color:var(--acc)}
 
-/* ================= WHITEPAPER ================= */
-.wp{position:relative;border-radius:26px;padding:2px;background:linear-gradient(135deg,rgba(0,229,160,.6),rgba(59,130,246,.45),rgba(139,92,246,.6))}
-.wp-inner{background:linear-gradient(165deg,#0a1120,#070b15);border-radius:24px;padding:46px 42px;
-  display:grid;grid-template-columns:1.15fr .85fr;gap:44px;align-items:center;position:relative;overflow:hidden}
-.wp-inner::before{content:'';position:absolute;width:420px;height:420px;border-radius:50%;
-  background:radial-gradient(circle,rgba(0,229,160,.18),transparent 70%);top:-180px;right:-120px;pointer-events:none}
-.wp-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:99px;
-  background:rgba(139,92,246,.16);border:1px solid rgba(139,92,246,.45);font-size:.72rem;font-weight:800;
-  letter-spacing:1.6px;text-transform:uppercase;color:#c4b5fd;margin-bottom:18px}
-.wp h2{margin-bottom:14px;font-size:clamp(1.6rem,3vw,2.2rem)}
-.wp-inner p{color:var(--muted);font-size:.95rem;margin-bottom:22px;max-width:520px}
-.wp-actions{display:flex;gap:12px;flex-wrap:wrap}
-.wp-chapters{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:18px;padding:24px}
-.wp-chapters h6{font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:14px}
-.wp-chapters ol{list-style:none;counter-reset:c;display:flex;flex-direction:column;gap:2px}
-.wp-chapters li{counter-increment:c;display:flex;gap:12px;align-items:center;font-size:.86rem;
-  padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.07);color:#cfd9e8}
-.wp-chapters li:last-child{border-bottom:none}
-.wp-chapters li::before{content:counter(c,decimal-leading-zero);font-family:ui-monospace,monospace;
-  font-size:.72rem;color:var(--acc);font-weight:700;flex:0 0 auto}
-.wp-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;font-size:.76rem;color:#6b7b93}
-.wp-meta b{color:#cfd9e8;font-weight:700}
+/* WHITEPAPER */
+.wp-inner{background:linear-gradient(165deg,rgba(10,17,32,0.8),rgba(7,11,21,0.8));border:1px solid var(--border);border-radius:24px;padding:46px;display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:center;backdrop-filter:blur(10px);}
+.wp-badge{display:inline-block;padding:6px 14px;border-radius:99px;background:rgba(139,92,246,.16);border:1px solid rgba(139,92,246,.45);font-size:.72rem;font-weight:800;color:#c4b5fd;margin-bottom:18px}
+.wp-chapters{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:18px;padding:24px;list-style:none}
+.wp-chapters li{padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.07);font-size:.85rem;color:#cfd9e8}
+.wp-chapters li:last-child{border:none}
 
-/* ================= PROCESS / WHY / FAQ ================= */
-.process{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;position:relative}
-.step{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;transition:.35s}
-.step:hover{transform:translateY(-5px);border-color:rgba(59,130,246,.4);background:var(--card2)}
-.step .num{font-size:2.1rem;font-weight:800;letter-spacing:-2px;line-height:1;margin-bottom:16px;
-  background:linear-gradient(140deg,var(--acc),var(--acc3));-webkit-background-clip:text;background-clip:text;color:transparent}
-.step h4{font-size:1rem;font-weight:700;margin-bottom:8px}
-.step p{font-size:.87rem;color:var(--muted)}
-
-.why{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-.why-list{display:flex;flex-direction:column;gap:18px;margin-top:28px}
-.why-item{display:flex;gap:15px;align-items:flex-start}
-.why-item .chk{width:26px;height:26px;flex:0 0 auto;border-radius:9px;display:grid;place-items:center;
-  background:rgba(0,229,160,.13);border:1px solid rgba(0,229,160,.35);margin-top:2px}
-.why-item .chk svg{width:13px;height:13px;stroke:var(--acc);fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
-.why-item h5{font-size:.97rem;font-weight:700;margin-bottom:3px}
-.why-item p{font-size:.87rem;color:var(--muted)}
-.panel{background:linear-gradient(160deg,rgba(0,229,160,.09),rgba(139,92,246,.07));
-  border:1px solid var(--border);border-radius:24px;padding:34px}
-.panel h4{font-size:1.1rem;margin-bottom:20px;font-weight:700}
-.meter{margin-bottom:20px}
-.meter .top{display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:7px;color:var(--muted)}
-.meter .top b{color:var(--text)}
-.meter .track{height:7px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden}
-.meter .track i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc),#37d6ff);
-  width:0;animation:grow 1.6s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:.3s}
-
-.faq{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
-.q{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:.3s}
-.q.open{border-color:rgba(0,229,160,.35);background:rgba(0,229,160,.06)}
-.q button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;
-  padding:19px 22px;text-align:left;font-weight:650;font-size:.97rem}
-.q .plus{width:22px;height:22px;flex:0 0 auto;position:relative;transition:.3s}
-.q .plus::before,.q .plus::after{content:'';position:absolute;background:var(--acc);border-radius:2px;transition:.3s}
-.q .plus::before{width:13px;height:2px;top:10px;left:4.5px}
-.q .plus::after{width:2px;height:13px;top:4.5px;left:10px}
-.q.open .plus::after{transform:rotate(90deg);opacity:0}
-.q .a{max-height:0;overflow:hidden;transition:max-height .38s ease}
-.q .a p{padding:0 22px 20px;color:var(--muted);font-size:.9rem}
-
-/* ================= CONTACT ================= */
+/* CONTACT */
 .contact-wrap{display:grid;grid-template-columns:.85fr 1.15fr;gap:50px;align-items:start}
-.contact-info p{color:var(--muted);font-size:.95rem;margin-bottom:26px}
-.info-row{display:flex;gap:13px;align-items:center;margin-bottom:16px;font-size:.9rem;flex-wrap:wrap}
-.info-row .ib{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;flex:0 0 auto;
-  background:rgba(255,255,255,.06);border:1px solid var(--border)}
-.info-row .ib svg{width:16px;height:16px;stroke:var(--acc);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.copy-btn{font-size:.7rem;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--acc);
-  border:1px solid rgba(0,229,160,.35);border-radius:8px;padding:4px 9px;transition:.2s}
-.copy-btn:hover{background:rgba(0,229,160,.14)}
-.form{background:linear-gradient(165deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
-  border:1px solid var(--border);border-radius:22px;padding:32px}
+.form{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:32px;backdrop-filter:blur(10px);}
 .f-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
 .field.full{grid-column:1/-1}
-.field label{font-size:.78rem;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
-.field input,.field select,.field textarea{
-  width:100%;padding:13px 15px;border-radius:11px;background:rgba(0,0,0,.35);
-  border:1px solid var(--border);color:var(--text);font-size:.92rem;transition:.22s;outline:none}
-.field textarea{resize:vertical;min-height:110px}
-.field input:focus,.field select:focus,.field textarea:focus{
-  border-color:rgba(0,229,160,.65);box-shadow:0 0 0 3px rgba(0,229,160,.13);background:rgba(0,0,0,.5)}
-.field select option{background:#0a0f1c;color:var(--text)}
-.field input::placeholder,.field textarea::placeholder{color:#5c6b82}
-.err{color:#ff6b81;font-size:.75rem;display:none;font-weight:600}
-.field.bad input,.field.bad select,.field.bad textarea{border-color:rgba(255,107,129,.7)}
-.field.bad .err{display:block}
-.consent{display:flex;gap:11px;align-items:flex-start;font-size:.79rem;color:var(--muted);margin:6px 0 20px;line-height:1.5}
-.consent input{width:17px;height:17px;accent-color:var(--acc);flex:0 0 auto;margin-top:2px}
+.field label{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+.field input,.field select,.field textarea{width:100%;padding:13px 15px;border-radius:11px;background:rgba(0,0,0,.35);border:1px solid var(--border);color:var(--text);font-size:.92rem}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,229,160,.1)}
 .form .btn{width:100%}
-.note{font-size:.74rem;color:#6b7b93;text-align:center;margin-top:14px}
 
-/* ================= CTA BAND ================= */
-.cta-band{background:linear-gradient(120deg,rgba(0,229,160,.13),rgba(59,130,246,.12),rgba(139,92,246,.13));
-  border:1px solid var(--border);border-radius:26px;padding:52px 40px;text-align:center;position:relative;overflow:hidden}
-.cta-band h2{margin-bottom:12px}
-.cta-band p{color:var(--muted);max-width:520px;margin:0 auto 26px}
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:56px 0 30px;background:rgba(0,0,0,.5);backdrop-filter:blur(10px);}
+.f-grid2{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;margin-bottom:40px}
+.f-col h6{font-size:.76rem;letter-spacing:1.6px;text-transform:uppercase;color:#fff;margin-bottom:16px}
+.f-col a{display:block;font-size:.88rem;color:var(--muted);padding:5px 0}
+.f-col a:hover{color:var(--acc)}
+.f-bottom{border-top:1px solid var(--border);padding-top:24px;display:flex;justify-content:space-between;font-size:.8rem;color:#6b7b93}
 
-/* ================= FOOTER ================= */
-footer{border-top:1px solid var(--border);padding:56px 0 30px;background:rgba(0,0,0,.35)}
-.f-grid2{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px;margin-bottom:40px}
-.f-col h6{font-size:.76rem;letter-spacing:1.6px;text-transform:uppercase;color:#fff;font-weight:800;margin-bottom:16px}
-.f-col a{display:block;font-size:.88rem;color:var(--muted);padding:5px 0;transition:.2s}
-.f-col a:hover{color:var(--acc);transform:translateX(3px)}
-.f-col p{font-size:.87rem;color:var(--muted);margin-top:14px;max-width:290px}
-.f-bottom{border-top:1px solid var(--border);padding-top:24px;display:flex;justify-content:space-between;
-  gap:18px;flex-wrap:wrap;font-size:.8rem;color:#6b7b93}
-.f-bottom a:hover{color:var(--acc)}
-.disclaimer{margin-top:20px;font-size:.74rem;color:#5a6980;line-height:1.7;max-width:900px}
-
-/* ================= MODAL ================= */
-.modal{position:fixed;inset:0;z-index:200;display:none;padding:24px;
-  background:rgba(2,4,10,.82);backdrop-filter:blur(8px);overflow-y:auto}
+/* MODAL (WHITEPAPER) */
+.modal{position:fixed;inset:0;z-index:200;display:none;padding:24px;background:rgba(2,4,10,.85);backdrop-filter:blur(8px);overflow-y:auto}
 .modal.open{display:flex;align-items:flex-start;justify-content:center}
-.modal-box{width:100%;max-width:860px;background:linear-gradient(170deg,#0b1322,#070b14);
-  border:1px solid rgba(0,229,160,.28);border-radius:22px;box-shadow:0 40px 90px -30px #000;margin:auto;
-  animation:pop .35s cubic-bezier(.2,.9,.3,1)}
-@keyframes pop{from{opacity:0;transform:translateY(24px) scale(.98)}to{opacity:1;transform:none}}
-.modal-head{display:flex;align-items:center;gap:14px;padding:22px 26px;border-bottom:1px solid var(--border);
-  position:sticky;top:0;background:rgba(9,14,25,.96);backdrop-filter:blur(14px);border-radius:22px 22px 0 0;z-index:2}
-.modal-head h3{font-size:1.05rem;font-weight:800;letter-spacing:-.4px;line-height:1.3}
-.modal-head small{display:block;font-size:.72rem;color:var(--muted);font-weight:600;letter-spacing:.6px;text-transform:uppercase}
-.modal-close{margin-left:auto;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:0 0 auto;
-  background:rgba(255,255,255,.06);border:1px solid var(--border);transition:.2s}
-.modal-close:hover{background:rgba(255,107,129,.18);border-color:rgba(255,107,129,.5)}
-.modal-close svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round}
-.modal-body{padding:26px 30px 32px;max-height:70vh;overflow-y:auto}
-.modal-body h4{font-size:1rem;font-weight:800;color:#fff;margin:26px 0 8px;letter-spacing:-.3px}
-.modal-body h4:first-child{margin-top:0}
-.modal-body p{font-size:.9rem;color:#b9c6d8;margin-bottom:12px}
-.modal-body ul{margin:0 0 12px 18px;color:#b9c6d8;font-size:.9rem}
-.modal-body li{margin-bottom:6px}
-.modal-body table{width:100%;border-collapse:collapse;font-size:.82rem;margin:8px 0 16px}
-.modal-body th,.modal-body td{border:1px solid var(--border);padding:9px 11px;text-align:left;color:#b9c6d8}
-.modal-body th{background:rgba(255,255,255,.05);color:#fff;font-weight:700}
-.modal-foot{display:flex;gap:12px;flex-wrap:wrap;padding:20px 30px;border-top:1px solid var(--border);
-  background:rgba(255,255,255,.02);border-radius:0 0 22px 22px}
+.modal-box{width:100%;max-width:800px;background:#0b1322;border:1px solid rgba(0,229,160,.28);border-radius:22px;margin:auto;}
+.modal-head{display:flex;justify-content:space-between;padding:22px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#0b1322;z-index:2;}
+.modal-body{padding:30px;color:#b9c6d8;font-size:.95rem;line-height:1.7;}
+.modal-body h4{color:#fff;margin:24px 0 10px;font-size:1.1rem;}
+.modal-body p{margin-bottom:12px;}
 
-/* ================= TOAST / BACKTOP ================= */
-.toast{position:fixed;bottom:28px;right:28px;z-index:999;display:flex;gap:12px;align-items:flex-start;
-  background:#0d1626;border:1px solid rgba(0,229,160,.45);border-radius:14px;padding:16px 20px;
-  box-shadow:0 24px 60px -18px rgba(0,0,0,.95);max-width:360px;
-  transform:translateY(140%);opacity:0;transition:.45s cubic-bezier(.2,.9,.3,1)}
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;z-index:999;display:flex;gap:12px;background:#0d1626;border:1px solid rgba(0,229,160,.45);border-radius:14px;padding:16px 20px;transform:translateY(140%);opacity:0;transition:.4s}
 .toast.show{transform:translateY(0);opacity:1}
-.toast .ti{width:34px;height:34px;border-radius:50%;background:rgba(0,229,160,.16);display:grid;place-items:center;flex:0 0 auto}
-.toast .ti svg{width:17px;height:17px;stroke:var(--acc);fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
-.toast b{display:block;font-size:.9rem;margin-bottom:2px}
-.toast span{font-size:.8rem;color:var(--muted)}
-.back-top{position:fixed;left:24px;bottom:26px;z-index:120;width:46px;height:46px;border-radius:13px;
-  display:grid;place-items:center;background:rgba(13,22,38,.9);border:1px solid var(--border);
-  backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:.35s}
-.back-top.show{opacity:1;pointer-events:auto}
-.back-top:hover{border-color:rgba(0,229,160,.5);transform:translateY(-3px)}
-.back-top svg{width:18px;height:18px;stroke:var(--acc);fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 
-/* ================= REVEAL ================= */
-.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
-.reveal.in{opacity:1;transform:none}
-
-/* ================= RESPONSIVE ================= */
-@media (max-width:1060px){
-  .nav-links a{padding:8px 9px;font-size:.82rem}
-  .nav-cta .btn-sm{display:none}
-}
-@media (max-width:980px){
-  .hero-grid{grid-template-columns:1fr;gap:48px}
-  .hero{padding-top:130px}
-  .cards,.proof-grid,.t-grid{grid-template-columns:1fr 1fr}
-  .process{grid-template-columns:1fr 1fr}
-  .why{grid-template-columns:1fr;gap:40px}
-  .contact-wrap{grid-template-columns:1fr;gap:36px}
-  .f-grid2{grid-template-columns:1fr 1fr}
-  .wp-inner{grid-template-columns:1fr;gap:30px;padding:36px 28px}
-  .nav-links{position:fixed;top:76px;left:0;right:0;flex-direction:column;align-items:stretch;gap:4px;
-    background:rgba(6,9,17,.98);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);
-    padding:16px 22px 24px;transform:translateY(-130%);transition:.4s cubic-bezier(.2,.9,.3,1)}
-  .nav-links.open{transform:translateY(0)}
-  .nav-links a{padding:13px 14px;font-size:.92rem}
-  .burger{display:grid}
-}
-@media (max-width:640px){
-  .stats-grid{grid-template-columns:1fr 1fr;gap:28px 12px;padding:36px 0}
-  .stat+.stat::before{display:none}
-  .cards,.proof-grid,.t-grid,.process{grid-template-columns:1fr}
-  .f-grid2{grid-template-columns:1fr;gap:28px}
-  .f-grid2 .f-col:first-child,.f-grid2 .f-col:last-child{grid-column:1/-1}
-  .f-grid2 .f-col:last-child p{max-width:none}
-  section{padding:70px 0}
-  .form{padding:24px 20px}
-  .f-grid{grid-template-columns:1fr}
-  .cta-band{padding:38px 22px}
-  .toast{left:16px;right:16px;bottom:16px;max-width:none}
-  .back-top{left:16px;bottom:88px}
-  .modal{padding:12px}
-  .modal-body{padding:20px 20px 26px;max-height:74vh}
-  .lang-pill{padding:4px 7px}
-  .goog-te-gadget .goog-te-combo{width:88px;font-size:.72rem}
-  .logo{font-size:.95rem}
-  .logo .mark{width:32px;height:32px}
+@media(max-width:980px){
+  .hero-grid,.cards,.proof-grid,.t-grid,.wp-inner,.contact-wrap,.f-grid2{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .hero{padding-top:120px}
+  .modal-body{padding:20px;}
 }
 </style>
 </head>
 <body>
 
-<div class="bg-fx"><div class="orb a"></div><div class="orb b"></div><div class="orb c"></div></div>
-<div class="grid-fx"></div>
+<canvas id="particleCanvas"></canvas>
 
-<!-- ================= HEADER ================= -->
 <header id="header">
   <div class="wrap nav">
-    <a href="#home" class="logo">
-      <span class="mark">
-        <svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z"/><path d="M12 22V12"/><path d="M3 7l9 5 9-5"/></svg>
-      </span>
+    <a href="#" class="logo">
+      <span class="mark"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z"/><path d="M12 22V12"/><path d="M3 7l9 5 9-5"/></svg></span>
       <span>ChainRecover<small>Blockchain Forensics</small></span>
     </a>
-
-    <nav class="nav-links" id="navLinks">
+    <nav class="nav-links">
       <a href="#services">Services</a>
-      <a href="#results">Results</a>
+      <a href="#results">Case Results</a>
       <a href="#testimonials">Testimonials</a>
       <a href="#whitepaper">Whitepaper</a>
       <a href="#faq">FAQ</a>
-      <a href="#contact">Contact</a>
     </nav>
-
     <div class="nav-cta">
-      <div class="lang-pill" title="Translate this page">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18Z"/></svg>
-        <div id="google_translate_element"></div>
-      </div>
-      <a href="#contact" class="btn btn-primary btn-sm">Free Case Review</a>
-      <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><span></span></button>
+      <div class="lang-pill"><div id="google_translate_element"></div></div>
+      <a href="/wallet.html" class="btn btn-primary" style="padding:10px 20px;font-size:.9rem;">My Wallet</a>
     </div>
   </div>
 </header>
 
-<!-- ================= HERO ================= -->
-<section class="hero" id="home">
+<!-- HERO -->
+<section class="hero">
   <div class="wrap hero-grid">
-    <div class="hero-text">
-      <div class="badge reveal"><span class="pulse"></span> Accepting new cases — 2025 intake open</div>
-      <h1 class="reveal">Recover What Was <span class="grad">Lost On The Blockchain.</span></h1>
-      <p class="lead reveal">
-        On-chain forensics and asset tracing by engineers who have built blockchain
-        infrastructure for over 6 years. We follow the money across wallets, bridges
-        and exchanges — and hand you a report you can act on.
-      </p>
-      <div class="hero-actions reveal">
-        <a href="#contact" class="btn btn-primary">
-          Start Free Case Review
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </a>
-        <button class="btn btn-ghost" data-open="wpModal">📜 Read the Whitepaper</button>
+    <div>
+      <div class="badge"><span class="pulse"></span> Accepting new cases — 2025 intake open</div>
+      <h1>Recover What Was <span class="grad">Lost On The Blockchain.</span></h1>
+      <p class="lead">On-chain forensics and asset tracing by engineers who have built blockchain infrastructure for over 6 years. We follow the money across wallets, bridges and exchanges.</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn btn-primary">Start Free Case Review</a>
+        <button class="btn btn-ghost" onclick="openModal()">📜 Read Whitepaper</button>
       </div>
-      <div class="trust reveal">
-        <div class="item"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> No recovery, no fee</div>
-        <div class="item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg> Strict NDA &amp; confidentiality</div>
-        <div class="item"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Full forensic report included</div>
+      <div class="trust">
+        <div class="item">✅ No recovery, no fee</div>
+        <div class="item">🔒 Strict NDA</div>
+        <div class="item">⚖️ Court-ready reports</div>
       </div>
     </div>
-
-    <div class="case-card reveal">
-      <div class="case-top"><span class="live-dot"></span> LIVE CASE MONITOR <span class="id">#BC-2847</span></div>
-      <div class="case-row">
-        <div><span class="lbl">Assets traced</span><span class="val green">$1,284,900</span></div>
-        <div style="text-align:right"><span class="lbl">Chain</span><span class="val">Ethereum</span></div>
-      </div>
-      <div class="bar"><i style="--w:78%"></i></div>
-      <div class="case-foot">78% of funds traced to 4 exchange deposit wallets</div>
-      <div class="mini-chart">
-        <span style="--h:34%"></span><span style="--h:52%"></span><span style="--h:41%"></span>
-        <span style="--h:68%"></span><span style="--h:57%"></span><span style="--h:82%"></span>
-        <span style="--h:71%"></span><span style="--h:94%"></span>
-      </div>
-      <div class="case-steps">
-        <div class="step-line done"><span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span> Wallet cluster identified</div>
-        <div class="step-line done"><span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span> Bridge hop traced (2 chains)</div>
-        <div class="step-line"><span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span> Exchange freeze request in progress</div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:.8rem;margin-bottom:15px;"><span><span class="pulse" style="display:inline-block;margin-right:5px"></span> LIVE CASE #BC-2847</span><span style="color:var(--acc)">TRACING</span></div>
+      <div style="font-size:.8rem;color:var(--muted)">Assets traced</div>
+      <div style="font-size:1.8rem;font-weight:800;color:var(--acc);margin-bottom:15px;">$1,284,900</div>
+      <div style="height:8px;background:rgba(255,255,255,.1);border-radius:10px;overflow:hidden;margin-bottom:10px;"><div style="width:78%;height:100%;background:linear-gradient(90deg,var(--acc),#00b8d4);"></div></div>
+      <div style="font-size:.8rem;color:var(--muted);margin-bottom:20px;">78% of funds traced to exchange wallets</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:.85rem;">
+        <div>✅ Wallet cluster identified</div>
+        <div>✅ Bridge hop traced (2 chains)</div>
+        <div style="color:var(--acc);">⏳ Exchange freeze request in progress</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ================= STATS ================= -->
-<div class="stats">
-  <div class="wrap stats-grid">
-    <div class="stat reveal"><b data-count="6" data-suffix="+">0</b><small>Years Building Chain Tech</small></div>
-    <div class="stat reveal"><b data-count="1240" data-suffix="+">0</b><small>Cases Analysed</small></div>
-    <div class="stat reveal"><b data-count="92" data-suffix="%">0</b><small>Trace Success Rate</small></div>
-    <div class="stat reveal"><b data-count="48" data-suffix="H">0</b><small>Avg. First Report</small></div>
+<!-- STATS -->
+<div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);">
+  <div class="wrap" style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;padding:46px 22px;text-align:center;">
+    <div><div style="font-size:2rem;font-weight:800;color:#fff;">6+</div><small style="color:var(--muted);font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;">Years Exp</small></div>
+    <div><div style="font-size:2rem;font-weight:800;color:#fff;">1,240+</div><small style="color:var(--muted);font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;">Cases Analysed</small></div>
+    <div><div style="font-size:2rem;font-weight:800;color:var(--acc);">92%</div><small style="color:var(--muted);font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;">Trace Success</small></div>
+    <div><div style="font-size:2rem;font-weight:800;color:#fff;">48H</div><small style="color:var(--muted);font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;">First Report</small></div>
   </div>
 </div>
 
-<!-- ================= SERVICES ================= -->
+<!-- SERVICES -->
 <section id="services">
   <div class="wrap">
-    <div class="head reveal">
+    <div class="head">
       <span class="eyebrow">Our Services</span>
       <h2>Forensic recovery across every chain</h2>
-      <p>Whether funds were stolen, sent to the wrong address, or locked behind a broken contract — we start with the evidence, not with promises.</p>
+      <p>Whether funds were stolen, sent to the wrong address, or locked behind a broken contract — we start with the evidence.</p>
     </div>
-
     <div class="cards">
-      <div class="card reveal">
-        <div class="icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
-        <h3>Stolen &amp; Scam Tracing</h3>
-        <p>Full on-chain investigation of rug pulls, phishing drains, fake investment platforms and pig-butchering schemes — with a wallet-to-wallet money trail.</p>
-        <a href="#contact" class="more" data-service="Stolen &amp; Scam Tracing">Start a trace <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      </div>
-      <div class="card reveal">
-        <div class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-        <h3>Lost Wallet Access</h3>
-        <p>Recover access to wallets with lost passwords, damaged devices or corrupted keystore files — using safe, offline recovery methods.</p>
-        <a href="#contact" class="more" data-service="Lost Wallet Access">Request help <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      </div>
-      <div class="card reveal">
-        <div class="icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/></svg></div>
-        <h3>Wrong-Address Transfers</h3>
-        <p>Sent crypto to the wrong network or a dead address? We identify the receiving party and prepare the exchange or legal contact needed to retrieve it.</p>
-        <a href="#contact" class="more" data-service="Wrong-Address Transfers">Assess my case <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      </div>
-      <div class="card reveal">
-        <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z"/><path d="M12 22V12M3 7l9 5 9-5"/></svg></div>
-        <h3>Smart Contract Exploits</h3>
-        <p>Post-mortem analysis of exploits, re-entrancy attacks and malicious approvals — plus approval revocation and asset migration guidance.</p>
-        <a href="#contact" class="more" data-service="Smart Contract Exploits">Get analysis <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      </div>
-      <div class="card reveal">
-        <div class="icon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-5 3 3 4-6"/></svg></div>
-        <h3>Exchange &amp; Custody Claims</h3>
-        <p>Documented freeze requests and claim packages prepared for exchanges, custodians and payment processors — written to their compliance standards.</p>
-        <a href="#contact" class="more" data-service="Exchange &amp; Custody Claims">Prepare a claim <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      </div>
-      <div class="card reveal">
-        <div class="icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M9 15h6M9 11h2"/></svg></div>
-        <h3>Forensic Reports &amp; Legal Pack</h3>
-        <p>Court-ready technical reports with hash-level evidence, timestamps and chain-of-custody notes — built for lawyers, police and regulators.</p>
-        <a href="#contact" class="more" data-service="Forensic Reports &amp; Legal Pack">Order a report <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      </div>
+      <div class="card"><div class="icon">🔍</div><h3>Stolen & Scam Tracing</h3><p>Full on-chain investigation of rug pulls, phishing drains, fake investment platforms and pig-butchering schemes.</p></div>
+      <div class="card"><div class="icon">🔐</div><h3>Lost Wallet Access</h3><p>Recover access to wallets with lost passwords, damaged devices or corrupted keystore files.</p></div>
+      <div class="card"><div class="icon">⚖️</div><h3>Legal Forensic Reports</h3><p>Court-ready technical reports with hash-level evidence, timestamps and chain-of-custody notes.</p></div>
+      <div class="card"><div class="icon">🔄</div><h3>Wrong-Address Transfers</h3><p>Sent crypto to the wrong network or a dead address? We identify the receiving party and retrieve it.</p></div>
+      <div class="card"><div class="icon">🛡️</div><h3>Smart Contract Exploits</h3><p>Post-mortem analysis of exploits, re-entrancy attacks and malicious approvals.</p></div>
+      <div class="card"><div class="icon">🏦</div><h3>Exchange Claims</h3><p>Documented freeze requests prepared for exchanges, custodians and payment processors.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ================= RESULTS / PROOF ================= -->
-<section id="results">
+<!-- PROOF GALLERY -->
+<section id="results" style="background:rgba(255,255,255,.02);">
   <div class="wrap">
-    <div class="head reveal">
-      <span class="eyebrow">Case Results &amp; Evidence</span>
+    <div class="head">
+      <span class="eyebrow">Case Results</span>
       <h2>Proof, not promises</h2>
-      <p>Every case ends with documented evidence. These are redacted extracts from real trace reports — hashes shortened, identities removed, outcomes untouched.</p>
+      <p>Redacted extracts from real trace reports — identities removed, outcomes untouched.</p>
     </div>
-
     <div class="proof-grid">
-      <!-- 1. explorer view -->
-      <article class="proof reveal">
-        <div class="shot-bar"><i></i><i></i><i></i><span>etherscan.io/tx/0x8f2a…c41</span></div>
+      <div class="proof">
+        <div style="padding:10px 14px;background:rgba(0,0,0,.5);border-bottom:1px solid var(--border);font-family:monospace;font-size:.7rem;color:#7f90a8;">etherscan.io/tx/0x8f2a…c41</div>
         <div class="shot-body">
           <div class="mono-row"><span>0x8f2a…c41</span><span class="neg">−210,000 USDT</span></div>
           <div class="mono-row"><span>0x7be1…9d02</span><span class="neg">−148,500 USDT</span></div>
-          <div class="mono-row"><span>0x1c44…a7f9</span><span class="neg">−54,300 USDT</span></div>
           <div class="mono-row"><span>0x9d10…3b88</span><span class="pos">FROZEN ✔</span></div>
-          <div class="mono-row"><span>0x2af6…e6c1</span><span class="pos">RETURNED ✔</span></div>
         </div>
-        <div class="proof-body">
-          <h4>USDT drain traced to exchange</h4>
-          <p>Phishing approval drained a DeFi wallet. Four hops, two bridges, one exchange deposit address.</p>
-          <span class="tag">$412,800 recovered</span>
+        <div class="proof-body"><h4>USDT drain traced</h4><p>Four hops, two bridges, one exchange deposit address.</p><div class="tag">$412,800 recovered</div></div>
+      </div>
+      <div class="proof">
+        <div style="padding:10px 14px;background:rgba(0,0,0,.5);border-bottom:1px solid var(--border);font-family:monospace;font-size:.7rem;color:#7f90a8;">cluster-view / case BC-2611</div>
+        <div style="height:160px;background:rgba(3,6,13,.6);display:flex;align-items:center;justify-content:center;">
+          <svg width="200" height="100" viewBox="0 0 200 100">
+            <line x1="40" y1="30" x2="100" y2="60" stroke="#2a3a55" stroke-width="2"/>
+            <line x1="100" y1="60" x2="160" y2="30" stroke="#2a3a55" stroke-width="2"/>
+            <circle cx="40" cy="30" r="8" fill="#3b82f6"/><circle cx="160" cy="30" r="8" fill="#8b5cf6"/>
+            <circle cx="100" cy="60" r="12" fill="#00e5a0"/>
+          </svg>
         </div>
-      </article>
-
-      <!-- 2. cluster map -->
-      <article class="proof reveal">
-        <div class="shot-bar"><i></i><i></i><i></i><span>cluster-view / case BC-2611</span></div>
-        <svg class="cluster" viewBox="0 0 320 172" preserveAspectRatio="xMidYMid meet">
-          <line x1="60" y1="46" x2="150" y2="86" stroke="#2a3a55" stroke-width="1.6"/>
-          <line x1="150" y1="86" x2="250" y2="40" stroke="#2a3a55" stroke-width="1.6"/>
-          <line x1="150" y1="86" x2="120" y2="140" stroke="#2a3a55" stroke-width="1.6"/>
-          <line x1="150" y1="86" x2="240" y2="134" stroke="#2a3a55" stroke-width="1.6"/>
-          <line x1="60" y1="46" x2="250" y2="40" stroke="rgba(0,229,160,.35)" stroke-width="1.2" stroke-dasharray="4 4"/>
-          <circle cx="60" cy="46" r="11" fill="rgba(59,130,246,.28)" stroke="#3b82f6" stroke-width="1.6"/>
-          <circle cx="150" cy="86" r="16" fill="rgba(0,229,160,.24)" stroke="#00e5a0" stroke-width="2"/>
-          <circle cx="250" cy="40" r="9" fill="rgba(139,92,246,.28)" stroke="#8b5cf6" stroke-width="1.6"/>
-          <circle cx="120" cy="140" r="8" fill="rgba(255,255,255,.12)" stroke="#4c5f7d" stroke-width="1.4"/>
-          <circle cx="240" cy="134" r="10" fill="rgba(255,200,87,.22)" stroke="#ffc857" stroke-width="1.6"/>
-          <text x="150" y="90" text-anchor="middle" font-size="7" fill="#c9f7e6" font-family="monospace">HUB</text>
-          <text x="60" y="30" text-anchor="middle" font-size="7" fill="#8fb4ff" font-family="monospace">VICTIM</text>
-          <text x="250" y="26" text-anchor="middle" font-size="7" fill="#c4b5fd" font-family="monospace">EXCHANGE</text>
-          <text x="240" y="152" text-anchor="middle" font-size="7" fill="#ffd98a" font-family="monospace">CASH-OUT</text>
-          <text x="120" y="158" text-anchor="middle" font-size="7" fill="#7f90a8" font-family="monospace">MIXER</text>
-        </svg>
-        <div class="proof-body">
-          <h4>Wallet cluster mapping</h4>
-          <p>17 wallets attributed to one operator through timing, gas patterns and shared nonce behaviour.</p>
-          <span class="tag">17 wallets attributed</span>
+        <div class="proof-body"><h4>Wallet cluster mapping</h4><p>17 wallets attributed to one operator.</p><div class="tag">17 wallets attributed</div></div>
+      </div>
+      <div class="proof">
+        <div style="padding:10px 14px;background:rgba(0,0,0,.5);border-bottom:1px solid var(--border);font-family:monospace;font-size:.7rem;color:#7f90a8;">freeze-request / FINAL.pdf</div>
+        <div class="shot-body" style="background:#fff; align-items:flex-start; padding:20px;">
+           <div style="width:60%;height:8px;background:#ddd;margin-bottom:8px;"></div>
+           <div style="width:80%;height:8px;background:#ddd;margin-bottom:8px;"></div>
+           <div style="width:40%;height:8px;background:#ddd;"></div>
+           <div style="margin-top:auto; align-self:flex-end; color:#00a070; border:2px solid #00a070; padding:4px 8px; font-weight:bold; transform:rotate(-10deg);">APPROVED</div>
         </div>
-      </article>
-
-      <!-- 3. freeze letter -->
-      <article class="proof reveal">
-        <div class="shot-bar"><i></i><i></i><i></i><span>freeze-request / FINAL.pdf</span></div>
-        <div class="doc">
-          <div class="line w45" style="background:rgba(0,229,160,.35);height:9px"></div>
-          <div class="line w80" style="margin-top:14px"></div>
-          <div class="line w60"></div>
-          <div class="line w70"></div>
-          <div class="line w80"></div>
-          <div class="line w45"></div>
-          <div class="line w60" style="margin-top:14px;background:rgba(59,130,246,.4)"></div>
-          <div class="line w70"></div>
-          <div class="stamp">APPROVED</div>
-        </div>
-        <div class="proof-body">
-          <h4>Exchange freeze accepted</h4>
-          <p>Compliance-ready evidence pack accepted in 9 days. Funds held pending account review.</p>
-          <span class="tag">Funds frozen in 9 days</span>
-        </div>
-      </article>
+        <div class="proof-body"><h4>Exchange freeze accepted</h4><p>Compliance-ready evidence pack accepted in 9 days.</p><div class="tag">Funds frozen in 9 days</div></div>
+      </div>
     </div>
-
-    <p class="proof-note reveal">All extracts shown are anonymised. Identifiers, amounts and timestamps have been altered where necessary to protect client confidentiality.</p>
   </div>
 </section>
 
-<!-- ================= TESTIMONIALS ================= -->
+<!-- TESTIMONIALS -->
 <section id="testimonials">
   <div class="wrap">
-    <div class="head reveal">
+    <div class="head">
       <span class="eyebrow">Testimonials</span>
       <h2>People we helped get their money back</h2>
-      <p>Every testimonial below is linked to a real closed case file. Identities are shared with permission.</p>
+      <p>Every testimonial below is linked to a real closed case file.</p>
     </div>
-
     <div class="t-grid">
-      <article class="t-card reveal">
-        <div class="t-top">
-          <div class="avatar"><span>JM</span><img src="https://i.pravatar.cc/160?img=12" alt="James M." loading="lazy" onerror="this.remove()"></div>
-          <div><h5>James M.</h5><small>London, United Kingdom</small></div>
-          <span class="verified"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
-        </div>
+      <div class="t-card">
+        <div class="t-top"><img src="https://i.pravatar.cc/150?img=11" class="avatar" alt="James"><div><b>James M.</b><br><small style="color:var(--muted)">London, UK</small></div></div>
         <div class="stars">★★★★★</div>
-        <p>“I lost 212,000 USDT to a fake yield platform. Within 11 days they had mapped the whole chain to an exchange and got the account frozen. I got 78% back. I still can’t quite believe it.”</p>
-        <div class="t-foot"><span class="recovered">Recovered $165,000</span><span class="t-ref">#CR-2841</span></div>
-      </article>
-
-      <article class="t-card reveal">
-        <div class="t-top">
-          <div class="avatar"><span>AO</span><img src="https://i.pravatar.cc/160?img=45" alt="Amaka O." loading="lazy" onerror="this.remove()"></div>
-          <div><h5>Amaka O.</h5><small>Lagos, Nigeria</small></div>
-          <span class="verified"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
-        </div>
+        <p>"I lost 212,000 USDT to a fake yield platform. Within 11 days they had mapped the whole chain to an exchange and got the account frozen."</p>
+        <div class="recovered">Recovered $165,000</div>
+      </div>
+      <div class="t-card">
+        <div class="t-top"><img src="https://i.pravatar.cc/150?img=5" class="avatar" alt="Amaka"><div><b>Amaka O.</b><br><small style="color:var(--muted)">Lagos, Nigeria</small></div></div>
         <div class="stars">★★★★★</div>
-        <p>“They were the only ones who did not ask for my seed phrase. That alone made me trust them. They traced my stolen BNB through a mixer and gave me a report my lawyer used in court.”</p>
-        <div class="t-foot"><span class="recovered">Recovered $38,400</span><span class="t-ref">#CR-2790</span></div>
-      </article>
-
-      <article class="t-card reveal">
-        <div class="t-top">
-          <div class="avatar"><span>DK</span><img src="https://i.pravatar.cc/160?img=33" alt="Daniel K." loading="lazy" onerror="this.remove()"></div>
-          <div><h5>Daniel K.</h5><small>Toronto, Canada</small></div>
-          <span class="verified"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
-        </div>
+        <p>"They were the only ones who did not ask for my seed phrase. That alone made me trust them. They traced my stolen BNB through a mixer."</p>
+        <div class="recovered">Recovered $38,400</div>
+      </div>
+      <div class="t-card">
+        <div class="t-top"><img src="https://i.pravatar.cc/150?img=33" class="avatar" alt="Daniel"><div><b>Daniel K.</b><br><small style="color:var(--muted)">Toronto, Canada</small></div></div>
         <div class="stars">★★★★★</div>
-        <p>“A corrupted keystore file locked me out of a wallet holding 4.2 ETH for two years. Their recovery was careful and offline. I had access back in a week.”</p>
-        <div class="t-foot"><span class="recovered">Wallet access restored</span><span class="t-ref">#CR-2654</span></div>
-      </article>
-
-      <article class="t-card reveal">
-        <div class="t-top">
-          <div class="avatar"><span>SR</span><img src="https://i.pravatar.cc/160?img=68" alt="Sofia R." loading="lazy" onerror="this.remove()"></div>
-          <div><h5>Sofia R.</h5><small>Madrid, Spain</small></div>
-          <span class="verified"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
-        </div>
-        <div class="stars">★★★★★</div>
-        <p>“I sent 9,800 USDC to the wrong network — my own mistake. They were honest that full recovery was unlikely, but they still recovered 6,100 of it. No recovery, no fee was real.”</p>
-        <div class="t-foot"><span class="recovered">Recovered $6,100</span><span class="t-ref">#CR-2718</span></div>
-      </article>
-
-      <article class="t-card reveal">
-        <div class="t-top">
-          <div class="avatar"><span>MT</span><img src="https://i.pravatar.cc/160?img=15" alt="Michael T." loading="lazy" onerror="this.remove()"></div>
-          <div><h5>Michael T.</h5><small>Dubai, UAE</small></div>
-          <span class="verified"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
-        </div>
-        <div class="stars">★★★★★</div>
-        <p>“Our company lost 340,000 USDT in a smart-contract exploit. The forensic report was detailed enough that our insurer accepted the claim without a second opinion.”</p>
-        <div class="t-foot"><span class="recovered">Claim approved</span><span class="t-ref">#CR-2588</span></div>
-      </article>
-
-      <article class="t-card reveal">
-        <div class="t-top">
-          <div class="avatar"><span>LB</span><img src="https://i.pravatar.cc/160?img=52" alt="Lucas B." loading="lazy" onerror="this.remove()"></div>
-          <div><h5>Lucas B.</h5><small>São Paulo, Brazil</small></div>
-          <span class="verified"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
-        </div>
-        <div class="stars">★★★★★</div>
-        <p>“Pig-butchering scam took 61,000 USDT from me. They told me straight away which part was recoverable and which was not. That honesty is why I recommend them to everyone.”</p>
-        <div class="t-foot"><span class="recovered">Recovered $29,700</span><span class="t-ref">#CR-2503</span></div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- ================= WHITEPAPER ================= -->
-<section id="whitepaper">
-  <div class="wrap">
-    <div class="wp reveal">
-      <div class="wp-inner">
-        <div>
-          <div class="wp-badge">📜 Whitepaper v1.2</div>
-          <h2>How blockchain recovery actually works</h2>
-          <p>
-            A 26-page technical paper on our six-layer tracing model, the mathematics of
-            wallet clustering, cross-chain bridge resolution, and the honest probability
-            of recovery for each case type. No hype — just the method.
-          </p>
-          <div class="wp-actions">
-            <button class="btn btn-primary" data-open="wpModal">Read Online</button>
-            <button class="btn btn-ghost" id="wpDownload">
-              Download .txt
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>
-            </button>
-          </div>
-          <div class="wp-meta">
-            <span><b>26</b> pages</span>
-            <span><b>9</b> chapters</span>
-            <span><b>Updated</b> Jan 2025</span>
-            <span><b>Free</b> — no email required</span>
-          </div>
-        </div>
-
-        <div class="wp-chapters">
-          <h6>Inside the paper</h6>
-          <ol>
-            <li>The irreversibility problem</li>
-            <li>Why the chain is the evidence</li>
-            <li>Six-layer tracing model</li>
-            <li>Wallet clustering heuristics</li>
-            <li>Bridge &amp; cross-chain resolution</li>
-            <li>Exchange attribution &amp; off-ramps</li>
-            <li>Recovery probability matrix</li>
-            <li>Evidence &amp; compliance standards</li>
-            <li>Limitations and honest caveats</li>
-          </ol>
-        </div>
+        <p>"A corrupted keystore file locked me out of a wallet holding 4.2 ETH. Their recovery was careful and offline. I had access back in a week."</p>
+        <div class="recovered">Wallet access restored</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ================= PROCESS ================= -->
-<section id="process">
+<!-- WHITEPAPER -->
+<section id="whitepaper" style="padding-top:0;">
   <div class="wrap">
-    <div class="head reveal">
-      <span class="eyebrow">How It Works</span>
-      <h2>Four steps. Total transparency.</h2>
-      <p>You always know exactly where your case stands — no vague timelines, no hidden stages.</p>
-    </div>
-    <div class="process">
-      <div class="step reveal"><div class="num">01</div><h4>Free Case Review</h4><p>Send us the transaction hashes and a short description. We assess feasibility within 48 hours — at no cost.</p></div>
-      <div class="step reveal"><div class="num">02</div><h4>Deep On-Chain Tracing</h4><p>We map the wallet cluster, follow bridge hops and label exchange endpoints using our proprietary tooling.</p></div>
-      <div class="step reveal"><div class="num">03</div><h4>Recovery Action</h4><p>Freeze requests, direct counterparty contact, and legal-ready evidence packs are issued on your behalf.</p></div>
-      <div class="step reveal"><div class="num">04</div><h4>Report &amp; Handover</h4><p>You receive a complete forensic report plus a clear record of every action taken and every asset located.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- ================= WHY US ================= -->
-<section id="why">
-  <div class="wrap why">
-    <div>
-      <span class="eyebrow reveal">Why ChainRecover</span>
-      <h2 class="reveal">Built by engineers, not by salesmen.</h2>
-      <p class="reveal" style="color:var(--muted);font-size:1rem">
-        We have spent nearly seven years building blockchain infrastructure — nodes, bridges, indexers and
-        smart contracts. That means we read the chain the way its builders do.
-      </p>
-      <div class="why-list">
-        <div class="why-item reveal">
-          <span class="chk"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
-          <div><h5>7 years of chain-level experience</h5><p>Real infrastructure work across Ethereum, BSC, Tron, Solana, Polygon and Arbitrum.</p></div>
-        </div>
-        <div class="why-item reveal">
-          <span class="chk"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
-          <div><h5>No recovery, no fee</h5><p>You only pay our success fee when assets are actually located and returned.</p></div>
-        </div>
-        <div class="why-item reveal">
-          <span class="chk"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
-          <div><h5>Honest verdicts</h5><p>If a case is not recoverable, we say so in the first 48 hours — and we do not charge for that answer.</p></div>
-        </div>
-        <div class="why-item reveal">
-          <span class="chk"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
-          <div><h5>We never ask for keys</h5><p>No seed phrase, no private key, ever. Any “recovery service” that asks for one is stealing from you.</p></div>
+    <div class="wp-inner">
+      <div>
+        <div class="wp-badge">📜 Whitepaper v1.2</div>
+        <h2>How blockchain recovery actually works</h2>
+        <p style="color:var(--muted);margin-bottom:20px;">A 26-page technical paper on our six-layer tracing model, wallet clustering, and the honest probability of recovery.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="openModal()">Read Online</button>
         </div>
       </div>
-    </div>
-
-    <div class="panel reveal">
-      <h4>Case performance snapshot</h4>
-      <div class="meter"><div class="top"><span>Funds traced successfully</span><b>92%</b></div><div class="track"><i style="--w:92%"></i></div></div>
-      <div class="meter"><div class="top"><span>Cases resolved within 90 days</span><b>74%</b></div><div class="track"><i style="--w:74%"></i></div></div>
-      <div class="meter"><div class="top"><span>Exchange freeze requests accepted</span><b>68%</b></div><div class="track"><i style="--w:68%"></i></div></div>
-      <div class="meter" style="margin-bottom:0"><div class="top"><span>Client reports delivered on time</span><b>100%</b></div><div class="track"><i style="--w:100%"></i></div></div>
+      <ul class="wp-chapters">
+        <li>01. The irreversibility problem</li>
+        <li>02. Why the chain is the evidence</li>
+        <li>03. Six-layer tracing model</li>
+        <li>04. Wallet clustering heuristics</li>
+        <li>05. Bridge & cross-chain resolution</li>
+      </ul>
     </div>
   </div>
 </section>
 
-<!-- ================= FAQ ================= -->
-<section id="faq">
-  <div class="wrap">
-    <div class="head reveal">
+<!-- FAQ -->
+<section id="faq" style="background:rgba(255,255,255,.02);">
+  <div class="wrap" style="max-width:800px;">
+    <div class="head">
       <span class="eyebrow">FAQ</span>
-      <h2>Questions people ask before they trust us</h2>
+      <h2>Common Questions</h2>
     </div>
-    <div class="faq">
-      <div class="q reveal">
-        <button aria-expanded="false">Can stolen crypto actually be recovered?<span class="plus"></span></button>
-        <div class="a"><p>Sometimes, yes. Once funds reach a centralised exchange, a properly documented freeze request can work. When funds sit in self-custody wallets, recovery depends on identifying the holder. We give you an honest assessment before you pay anything.</p></div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="card" style="padding:20px;">
+        <h4 style="margin-bottom:8px;">Can stolen crypto actually be recovered?</h4>
+        <p style="font-size:.9rem;">Sometimes, yes. Once funds reach a centralised exchange, a freeze request can work. We give you an honest assessment before you pay anything.</p>
       </div>
-      <div class="q reveal">
-        <button aria-expanded="false">How much does a case review cost?<span class="plus"></span></button>
-        <div class="a"><p>The initial case review is free. If we take the case, our fee structure is agreed in writing beforehand and is success-based for most recovery work.</p></div>
+      <div class="card" style="padding:20px;">
+        <h4 style="margin-bottom:8px;">How much does a case review cost?</h4>
+        <p style="font-size:.9rem;">The initial review is free. If we take the case, our fee structure is agreed in writing beforehand and is success-based.</p>
       </div>
-      <div class="q reveal">
-        <button aria-expanded="false">What do you need from me to begin?<span class="plus"></span></button>
-        <div class="a"><p>Transaction hashes, wallet addresses involved, approximate dates and a description of what happened. Never send a seed phrase or private key — we will never ask for one.</p></div>
-      </div>
-      <div class="q reveal">
-        <button aria-expanded="false">How long does an investigation take?<span class="plus"></span></button>
-        <div class="a"><p>A first trace report usually takes 48–72 hours. Full recovery actions involving exchange freeze requests typically take 2–12 weeks depending on the counterparty.</p></div>
-      </div>
-      <div class="q reveal">
-        <button aria-expanded="false">Which blockchains do you cover?<span class="plus"></span></button>
-        <div class="a"><p>Ethereum and all major EVM chains, Bitcoin, Tron, Solana, and the leading L2s including Arbitrum, Optimism, Base and Polygon.</p></div>
-      </div>
-      <div class="q reveal">
-        <button aria-expanded="false">Is my information confidential?<span class="plus"></span></button>
-        <div class="a"><p>Yes. Every engagement is covered by a mutual NDA. Case files are encrypted and only the assigned analyst team has access.</p></div>
+      <div class="card" style="padding:20px;">
+        <h4 style="margin-bottom:8px;">What do you need from me to begin?</h4>
+        <p style="font-size:.9rem;">Transaction hashes, wallet addresses, and a description. Never send a seed phrase or private key — we will never ask for one.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ================= CONTACT ================= -->
+<!-- CONTACT -->
 <section id="contact">
   <div class="wrap contact-wrap">
-    <div class="contact-info reveal">
+    <div>
       <span class="eyebrow">Free Case Review</span>
       <h2>Tell us what happened.</h2>
-      <p>Fill in the form and an analyst will get back to you within 48 hours with an honest feasibility opinion — no cost, no obligation.</p>
-
-      <div class="info-row">
-        <span class="ib"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="m4 6 8 6 8-6"/></svg></span>
-        <a href="mailto:caseschainrecover@outlook.com">caseschainrecover@outlook.com</a>
-        <button class="copy-btn" id="copyEmail" data-copy="caseschainrecover@outlook.com">Copy</button>
-      </div>
-      <div class="info-row">
-        <span class="ib"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
-        <span>Response within 48 hours, Mon–Sat</span>
-      </div>
-      <div class="info-row">
-        <span class="ib"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></span>
-        <span>NDA available on request</span>
-      </div>
-      <div class="info-row">
-        <span class="ib"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z"/></svg></span>
-        <span>Ethereum · BSC · Tron · Solana · L2s</span>
-      </div>
+      <p style="color:var(--muted);margin-bottom:20px;">Fill in the form and an analyst will get back to you within 48 hours with an honest feasibility opinion.</p>
+      <div style="font-weight:bold;font-size:1.1rem;color:var(--acc);margin-bottom:8px;">caseschainrecover@outlook.com</div>
+      <div style="color:var(--muted);font-size:.85rem;">🔒 Your details are encrypted and never sold.</div>
     </div>
-
-    <form class="form reveal" id="caseForm" novalidate>
+    <form class="form" id="contactForm">
       <div class="f-grid">
-        <div class="field">
-          <label for="name">Full name</label>
-          <input type="text" id="name" name="name" placeholder="John Carter" autocomplete="name" />
-          <span class="err">Please enter your name</span>
-        </div>
-        <div class="field">
-          <label for="email">Email address</label>
-          <input type="email" id="email" name="email" placeholder="you@email.com" autocomplete="email" />
-          <span class="err">Please enter a valid email</span>
-        </div>
-        <div class="field">
-          <label for="phone">Phone / Telegram (optional)</label>
-          <input type="text" id="phone" name="phone" placeholder="+1 555 000 0000" autocomplete="tel" />
-        </div>
-        <div class="field">
-          <label for="service">Case type</label>
-          <select id="service" name="service">
-            <option value="">Select a case type</option>
-            <option>Stolen &amp; Scam Tracing</option>
+        <div class="field"><label>Full Name</label><input type="text" id="cName" required></div>
+        <div class="field"><label>Email Address</label><input type="email" id="cEmail" required></div>
+        <div class="field full"><label>Case Type</label>
+          <select id="cService" required>
+            <option value="">Select case type</option>
+            <option>Stolen & Scam Tracing</option>
             <option>Lost Wallet Access</option>
-            <option>Wrong-Address Transfers</option>
             <option>Smart Contract Exploits</option>
-            <option>Exchange &amp; Custody Claims</option>
-            <option>Forensic Reports &amp; Legal Pack</option>
+            <option>Wrong-Address Transfers</option>
             <option>Other</option>
           </select>
-          <span class="err">Please choose a case type</span>
         </div>
-        <div class="field">
-          <label for="amount">Approx. amount lost (USD)</label>
-          <input type="text" id="amount" name="amount" placeholder="e.g. 12,000" inputmode="numeric" />
-        </div>
-        <div class="field">
-          <label for="chain">Blockchain involved</label>
-          <input type="text" id="chain" name="chain" placeholder="e.g. Ethereum" />
-        </div>
-        <div class="field full">
-          <label for="message">What happened?</label>
-          <textarea id="message" name="message" placeholder="Describe the incident, include any transaction hashes or wallet addresses you have…"></textarea>
-          <span class="err">Please add at least 20 characters</span>
-        </div>
+        <div class="field full"><label>What happened?</label><textarea id="cMessage" rows="4" required placeholder="Include any transaction hashes..."></textarea></div>
       </div>
-
-      <label class="consent">
-        <input type="checkbox" id="consent" />
-        <span>I confirm the information is accurate and I understand ChainRecover will never ask for my seed phrase or private key.</span>
-      </label>
-
-      <button type="submit" class="btn btn-primary">
-        Submit Free Case Review
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </button>
-      <p class="note">🔒 Your details are stored securely and never sold or shared.</p>
+      <button type="submit" class="btn btn-primary">Submit Free Case Review</button>
     </form>
   </div>
 </section>
 
-<!-- ================= CTA BAND ================= -->
-<section style="padding-top:0">
-  <div class="wrap">
-    <div class="cta-band reveal">
-      <h2>Every hour matters on-chain.</h2>
-      <p>Funds move fast. The sooner a trace begins, the more likely they can be located and frozen.</p>
-      <a href="#contact" class="btn btn-primary">Get My Free Case Review</a>
-    </div>
-  </div>
-</section>
-
-<!-- ================= FOOTER ================= -->
+<!-- FOOTER -->
 <footer>
   <div class="wrap">
     <div class="f-grid2">
       <div class="f-col">
-        <a href="#home" class="logo">
-          <span class="mark"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z"/><path d="M12 22V12"/><path d="M3 7l9 5 9-5"/></svg></span>
+        <a href="#" class="logo" style="margin-bottom:15px;">
+          <span class="mark"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z"/><path d="M12 22V12"/></svg></span>
           <span>ChainRecover<small>Blockchain Forensics</small></span>
         </a>
-        <p>On-chain forensics and crypto asset tracing, built by engineers with nearly seven years of blockchain infrastructure experience.</p>
+        <p style="color:var(--muted);font-size:.85rem;">On-chain forensics and crypto asset tracing, built by engineers with nearly seven years of experience.</p>
       </div>
+      <div class="f-col"><h6>Services</h6><a href="#services">Scam Tracing</a><a href="#services">Wallet Recovery</a><a href="#services">Legal Reports</a></div>
+      <div class="f-col"><h6>Company</h6><a href="#whitepaper">Whitepaper</a><a href="#contact">Contact</a><a href="#faq">FAQ</a></div>
       <div class="f-col">
-        <h6>Services</h6>
-        <a href="#services">Scam Tracing</a>
-        <a href="#services">Wallet Recovery</a>
-        <a href="#services">Contract Analysis</a>
-        <a href="#services">Legal Reports</a>
-      </div>
-      <div class="f-col">
-        <h6>Company</h6>
-        <a href="#why">Why Us</a>
-        <a href="#results">Case Results</a>
-        <a href="#whitepaper">Whitepaper</a>
-        <a href="#faq">FAQ</a>
-      </div>
-      <div class="f-col">
-        <h6>Get Started</h6>
-        <a href="#contact">Free Case Review</a>
-        <a href="mailto:caseschainrecover@outlook.com">caseschainrecover@outlook.com</a>
-        <a href="admin.html">Admin Dashboard</a>
+        <h6>Portal</h6>
+        <a href="/wallet.html" style="color:var(--acc);font-weight:bold;">Access My Wallet</a>
+        <a href="mailto:caseschainrecover@outlook.com">Email Support</a>
       </div>
     </div>
-
     <div class="f-bottom">
-      <span>© <span id="year">2025</span> ChainRecover. All rights reserved.</span>
-      <span>
-        <a href="#faq">Terms</a> &nbsp;·&nbsp;
-        <a href="#faq">Privacy</a> &nbsp;·&nbsp;
-        <a href="admin.html">Admin</a>
-      </span>
+      <span>© 2025 ChainRecover. All rights reserved.</span>
+      <span>caseschainrecover@outlook.com</span>
     </div>
-
-    <p class="disclaimer">
-      Disclaimer: ChainRecover provides blockchain forensic analysis and advisory services. We do not
-      guarantee the recovery of any assets — outcomes depend on where funds are held and on the
-      cooperation of third parties such as exchanges and law enforcement. We will never request your
-      seed phrase or private key. Nothing on this website constitutes financial or legal advice.
-    </p>
   </div>
 </footer>
 
-<!-- ================= WHITEPAPER MODAL ================= -->
-<div class="modal" id="wpModal" role="dialog" aria-modal="true" aria-labelledby="wpTitle">
-  <div class="modal-box">
+<!-- MODAL -->
+<div class="modal" id="wpModal" onclick="closeModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
     <div class="modal-head">
-      <div>
-        <h3 id="wpTitle">ChainRecover Whitepaper — v1.2</h3>
-        <small>Blockchain Forensics &amp; Asset Recovery Methodology</small>
-      </div>
-      <button class="modal-close" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <h3 style="font-size:1.1rem;">ChainRecover Whitepaper — v1.2</h3>
+      <button onclick="closeModal()" style="font-size:1.5rem;color:var(--muted);">&times;</button>
     </div>
-
-    <div class="modal-body" id="wpContent">
+    <div class="modal-body">
       <h4>Abstract</h4>
-      <p>Public blockchains are permanent ledgers, not banks. Once a transaction is confirmed it cannot be reversed by any central authority — yet value is rarely truly gone; it is only moved. This paper describes the methodology ChainRecover uses to follow that movement, attribute it to real-world entities, and convert a technical trace into evidence that exchanges, insurers and courts will accept.</p>
-
+      <p>Public blockchains are permanent ledgers. Once a transaction is confirmed it cannot be reversed — yet value is rarely truly gone; it is only moved. This paper describes the methodology ChainRecover uses to follow that movement.</p>
       <h4>1. The Irreversibility Problem</h4>
-      <p>Crypto-asset losses fall into two categories: <strong>unauthorised transfers</strong> (theft, phishing, exploits) and <strong>accidental transfers</strong> (wrong address, wrong network, lost keys). Neither is reversible at the protocol level. Recovery is therefore not a technical “undo” — it is an investigative and legal process that depends on where the assets ultimately land.</p>
-
-      <h4>2. Why the Chain Is the Evidence</h4>
-      <p>Every transfer leaves a permanent, timestamped, cryptographically verifiable record. Unlike a bank statement, the record cannot be edited by any party. This gives forensic analysts an unusually strong evidentiary base — provided the analysis is reproducible and the chain of custody is documented.</p>
-
-      <h4>3. The Six-Layer Tracing Model</h4>
-      <ul>
-        <li><strong>Layer 1 — Transaction graph:</strong> every input and output for every address in scope, reconstructed block by block.</li>
-        <li><strong>Layer 2 — Temporal analysis:</strong> timing, gas price and nonce behaviour used to group addresses controlled by one actor.</li>
-        <li><strong>Layer 3 — Clustering heuristics:</strong> common-input ownership, change-address detection, dusting patterns and exchange deposit tagging.</li>
-        <li><strong>Layer 4 — Cross-chain resolution:</strong> bridge deposits matched to withdrawals on the destination chain, including wrapped and canonical assets.</li>
-        <li><strong>Layer 5 — Off-ramp detection:</strong> identification of centralised exchange, payment processor or OTC desk endpoints.</li>
-        <li><strong>Layer 6 — Evidence packaging:</strong> hashes, timestamps, screenshots and signed analyst statements compiled into a court-ready report.</li>
-      </ul>
-
-      <h4>4. Wallet Clustering Heuristics</h4>
-      <p>Attribution relies on probabilistic signals, not certainty. We combine multiple weak signals — shared funding sources, identical gas behaviour, sequential nonces, reused deposit addresses and known-label databases — into a single confidence score per cluster. Clusters below a 0.72 confidence threshold are never presented as fact in a report.</p>
-
-      <h4>5. Bridges and Cross-Chain Movement</h4>
-      <p>Bridges break naïve tracing. We resolve them by matching deposit value, timing and destination address on the far side, and by treating wrapped assets as claims on the underlying asset rather than as separate currencies. Where a bridge cannot be resolved deterministically, the report states this explicitly.</p>
-
-      <h4>6. Recovery Probability Matrix</h4>
-      <table>
-        <tr><th>Funds currently held in…</th><th>Typical action</th><th>Indicative success</th></tr>
-        <tr><td>A centralised exchange</td><td>Freeze request + compliance pack</td><td>High</td></tr>
-        <tr><td>An identifiable self-custody cluster</td><td>Attribution + legal notice</td><td>Medium</td></tr>
-        <tr><td>A mixer or privacy pool</td><td>Partial de-anonymisation</td><td>Low–Medium</td></tr>
-        <tr><td>An unreachable or unknown address</td><td>Monitoring only</td><td>Low</td></tr>
-        <tr><td>Lost keys / corrupted wallet file</td><td>Offline recovery techniques</td><td>Case dependent</td></tr>
-      </table>
-
-      <h4>7. Evidence &amp; Compliance Standards</h4>
-      <p>Reports are written to a standard usable by counsel, insurers and law enforcement: every claim is traceable to a transaction hash, every hash is verifiable on a public explorer, and every analytical step is reproducible by a second analyst. Client data is encrypted at rest and covered by a mutual NDA.</p>
-
-      <h4>8. Limitations &amp; Honest Caveats</h4>
-      <p>No firm can guarantee recovery. Outcomes depend on the cooperation of exchanges, the speed of law enforcement, and the actions of the wrongdoer. We decline cases we believe are not recoverable, and we say so before any fee is agreed. Any service that guarantees recovery, or that requests a seed phrase, should be treated as fraudulent.</p>
-
-      <h4>9. Conclusion</h4>
-      <p>The blockchain does not forget. With disciplined tracing, careful attribution and well-prepared evidence, a meaningful proportion of lost assets can be located and — through the cooperation of regulated intermediaries — returned. That is the entire premise of ChainRecover.</p>
-
-      <p style="font-size:.8rem;color:#7f90a8;margin-top:22px">© 2025 ChainRecover. This document is provided for information only and does not constitute financial, legal or investment advice.</p>
-    </div>
-
-    <div class="modal-foot">
-      <button class="btn btn-primary btn-sm" id="wpDownload2">Download .txt</button>
-      <button class="btn btn-ghost btn-sm" data-close>Close</button>
-      <a href="#contact" class="btn btn-ghost btn-sm" data-close>Request PDF by email</a>
+      <p>Crypto-asset losses fall into two categories: unauthorised transfers (theft) and accidental transfers. Neither is reversible at the protocol level. Recovery is therefore an investigative and legal process.</p>
+      <h4>2. The Six-Layer Tracing Model</h4>
+      <p>We map every input and output, use timing and gas patterns to group addresses, resolve cross-chain bridge hops, detect off-ramps, and package it into a court-ready report.</p>
+      <h4>3. Honest Caveats</h4>
+      <p>No firm can guarantee recovery. Outcomes depend on the cooperation of exchanges and the speed of law enforcement. We decline cases we believe are not recoverable.</p>
     </div>
   </div>
 </div>
 
-<!-- ================= TOAST / BACK TOP ================= -->
-<div class="toast" id="toast" role="status" aria-live="polite">
-  <span class="ti"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
-  <div><b id="toastTitle">Submitted</b><span id="toastMsg">We received your case.</span></div>
-</div>
+<!-- TOAST -->
+<div class="toast" id="toast"><div><b id="toastTitle">Done</b><br><span id="toastMsg"></span></div></div>
 
-<button class="back-top" id="backTop" aria-label="Back to top">
-  <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-</button>
-
-<!-- ================= GOOGLE TRANSLATE ================= -->
 <script>
+  // 1. GOOGLE TRANSLATE
   function googleTranslateElementInit() {
-    new google.translate.TranslateElement(
-      { pageLanguage: 'en', includedLanguages: 'en,es,fr,de,pt,it,ar,ru,zh-CN,ja,ko,hi,tr,id,vi,th,pl,nl,sw,yo,ig,ha,fa,ur,bn', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false },
-      'google_translate_element'
-    );
+    new google.translate.TranslateElement({
+      pageLanguage: 'en',
+      includedLanguages: 'en,es,fr,de,pt,it,ar,ru,zh-CN,ja,ko,hi,tr,id,vi,th,pl,nl,sw,yo,ig,ha,fa,ur,bn',
+      layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+    }, 'google_translate_element');
   }
-</script>
-<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
 
-<script>
-/* ============================================================
-   ChainRecover — front-end logic
-   Cases persist in localStorage under "cr_cases".
-   admin.html reads the exact same key.
-   ============================================================ */
-const STORAGE_KEY = 'cr_cases';
-const CONTACT_EMAIL = 'caseschainrecover@outlook.com';
+  // 2. NAVBAR SCROLL EFFECT
+  window.addEventListener('scroll', () => {
+    document.getElementById('header').classList.toggle('scrolled', window.scrollY > 20);
+  });
 
-const $  = (s, c = document) => c.querySelector(s);
-const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+  // 3. MODAL LOGIC
+  function openModal() { document.getElementById('wpModal').classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function closeModal(e) {
+    if(e && e.target !== document.getElementById('wpModal') && e.target.className !== 'modal') return;
+    document.getElementById('wpModal').classList.remove('open'); document.body.style.overflow = '';
+  }
 
-/* ---------- storage ---------- */
-function readCases() {
-  try { const a = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); return Array.isArray(a) ? a : []; }
-  catch (e) { return []; }
-}
-function writeCases(list) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); return true; }
-  catch (e) { return false; }
-}
-
-/* ---------- toast ---------- */
-let toastTimer;
-function showToast(title, msg) {
-  $('#toastTitle').textContent = title;
-  $('#toastMsg').textContent = msg;
-  const t = $('#toast');
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 5200);
-}
-
-/* ---------- header + back to top ---------- */
-const header = $('#header'), backTop = $('#backTop');
-const onScroll = () => {
-  header.classList.toggle('scrolled', window.scrollY > 20);
-  backTop.classList.toggle('show', window.scrollY > 600);
-};
-window.addEventListener('scroll', onScroll, { passive: true });
-onScroll();
-backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-/* ---------- mobile nav ---------- */
-const burger = $('#burger'), navLinks = $('#navLinks');
-burger.addEventListener('click', () => {
-  const open = navLinks.classList.toggle('open');
-  burger.classList.toggle('open', open);
-  burger.setAttribute('aria-expanded', String(open));
-});
-$$('#navLinks a').forEach(a => a.addEventListener('click', () => {
-  navLinks.classList.remove('open');
-  burger.classList.remove('open');
-  burger.setAttribute('aria-expanded', 'false');
-}));
-
-/* ---------- smooth scroll with header offset ---------- */
-$$('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', e => {
-    const id = a.getAttribute('href');
-    if (id === '#' || id.length < 2) return;
-    const target = document.querySelector(id);
-    if (!target) return;
+  // 4. CONTACT FORM SUBMIT
+  document.getElementById('contactForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const top = target.getBoundingClientRect().top + window.scrollY - 78;
-    window.scrollTo({ top, behavior: 'smooth' });
-    // if link is inside a modal, close it first
-    const modal = a.closest('.modal');
-    if (modal) closeModal(modal);
-  });
-});
+    const btn = e.target.querySelector('button');
+    btn.innerText = 'Submitting...';
+    btn.disabled = true;
 
-/* ---------- reveal on scroll ---------- */
-const io = new IntersectionObserver(entries => {
-  entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
-}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-$$('.reveal').forEach((el, i) => {
-  el.style.transitionDelay = (i % 4) * 60 + 'ms';
-  io.observe(el);
-});
-
-/* ---------- counters ---------- */
-const counterIO = new IntersectionObserver(entries => {
-  entries.forEach(en => {
-    if (!en.isIntersecting) return;
-    const el = en.target;
-    const target = parseInt(el.dataset.count, 10) || 0;
-    const suffix = el.dataset.suffix || '';
-    const start = performance.now(), dur = 1600;
-    const tick = now => {
-      const p = Math.min((now - start) / dur, 1);
-      const eased = 1 - Math.pow(1 - p, 3);
-      el.textContent = Math.round(target * eased).toLocaleString() + suffix;
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-    counterIO.unobserve(el);
-  });
-}, { threshold: 0.5 });
-$$('[data-count]').forEach(el => counterIO.observe(el));
-
-/* ---------- FAQ ---------- */
-$$('.q').forEach(q => {
-  const btn = $('button', q), ans = $('.a', q);
-  btn.addEventListener('click', () => {
-    const isOpen = q.classList.contains('open');
-    $$('.q').forEach(other => {
-      other.classList.remove('open');
-      $('.a', other).style.maxHeight = null;
-      $('button', other).setAttribute('aria-expanded', 'false');
-    });
-    if (!isOpen) {
-      q.classList.add('open');
-      ans.style.maxHeight = ans.scrollHeight + 'px';
-      btn.setAttribute('aria-expanded', 'true');
-    }
-  });
-});
-
-/* ---------- modals ---------- */
-function openModal(m) {
-  m.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  $('.modal-close', m)?.focus();
-}
-function closeModal(m) {
-  m.classList.remove('open');
-  document.body.style.overflow = '';
-}
-$$('[data-open]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const m = document.getElementById(btn.dataset.open);
-    if (m) openModal(m);
-  });
-});
-$$('.modal').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) closeModal(m); });
-  $$('[data-close]', m).forEach(c => c.addEventListener('click', () => closeModal(m)));
-});
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') $$('.modal.open').forEach(closeModal);
-  if (e.altKey && e.key.toLowerCase() === 'a') window.location.href = 'admin.html';
-});
-
-/* ---------- whitepaper download ---------- */
-function downloadWhitepaper() {
-  const body = $('#wpContent').innerText.trim();
-  const header =
-    'CHAINRECOVER — WHITEPAPER v1.2\n' +
-    'Blockchain Forensics & Asset Recovery Methodology\n' +
-    'Contact: ' + CONTACT_EMAIL + '\n' +
-    '==========================================================\n\n';
-  const blob = new Blob([header + body], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'ChainRecover-Whitepaper-v1.2.txt';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
-  showToast('Whitepaper downloaded ✔', 'Saved as ChainRecover-Whitepaper-v1.2.txt');
-}
-['wpDownload', 'wpDownload2'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('click', downloadWhitepaper);
-});
-
-/* ---------- copy email ---------- */
-const copyBtn = $('#copyEmail');
-if (copyBtn) {
-  copyBtn.addEventListener('click', async () => {
-    const text = copyBtn.dataset.copy;
     try {
-      await navigator.clipboard.writeText(text);
-      showToast('Email copied ✔', text);
-    } catch (e) {
-      const ta = document.createElement('textarea');
-      ta.value = text; document.body.appendChild(ta); ta.select();
-      try { document.execCommand('copy'); showToast('Email copied ✔', text); }
-      catch (_) { showToast('Copy failed', 'Please copy manually: ' + text); }
-      ta.remove();
-    }
-    copyBtn.textContent = 'Copied';
-    setTimeout(() => copyBtn.textContent = 'Copy', 2000);
-  });
-}
-
-/* ---------- service card → prefill form ---------- */
-$$('[data-service]').forEach(el => {
-  el.addEventListener('click', () => {
-    const val = el.dataset.service;
-    const sel = $('#service');
-    [...sel.options].forEach(o => {
-      if (o.value === val || o.textContent === val) sel.value = o.value || o.textContent;
-    });
-    sel.closest('.field').classList.remove('bad');
-    setTimeout(() => $('#name').focus({ preventScroll: true }), 700);
-  });
-});
-
-/* ---------- form ---------- */
-const form = $('#caseForm');
-function setBad(fieldEl, bad) { fieldEl.classList.toggle('bad', bad); return !bad; }
-
-form.addEventListener('submit', e => {
-  e.preventDefault();
-
-  const nameEl = $('#name'), emailEl = $('#email'), servEl = $('#service'), msgEl = $('#message');
-  const emailOk = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(emailEl.value.trim());
-
-  let ok = true;
-  ok = setBad(nameEl.closest('.field'), nameEl.value.trim().length < 2) && ok;
-  ok = setBad(emailEl.closest('.field'), !emailOk) && ok;
-  ok = setBad(servEl.closest('.field'), !servEl.value) && ok;
-  ok = setBad(msgEl.closest('.field'), msgEl.value.trim().length < 20) && ok;
-
-  if (!ok) {
-    showToast('Check your details', 'Some required fields still need attention.');
-    form.querySelector('.field.bad input, .field.bad select, .field.bad textarea')?.focus();
-    return;
-  }
-  if (!$('#consent').checked) {
-    showToast('Consent required', 'Please tick the confirmation box before submitting.');
-    $('#consent').focus();
-    return;
-  }
-
-  const record = {
-    id: 'CR-' + Date.now().toString(36).toUpperCase(),
-    name: nameEl.value.trim(),
-    email: emailEl.value.trim().toLowerCase(),
-    phone: $('#phone').value.trim(),
-    service: servEl.value,
-    amount: $('#amount').value.trim(),
-    chain: $('#chain').value.trim(),
-    message: msgEl.value.trim(),
-    status: 'New',
-    notes: '',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-
-  if (!writeCases([...readCases(), record])) {
-    showToast('Storage blocked', 'Your browser blocked local storage — please email ' + CONTACT_EMAIL);
-    return;
-  }
-
-  form.reset();
-  $$('.field').forEach(f => f.classList.remove('bad'));
-  showToast('Case received ✔', 'Reference ' + record.id + ' — we reply within 48 hours.');
-  console.log('[ChainRecover] Case saved:', record);
-});
-
-$$('#caseForm input, #caseForm select, #caseForm textarea').forEach(el => {
-  el.addEventListener('input', () => el.closest('.field')?.classList.remove('bad'));
-  el.addEventListener('change', () => el.closest('.field')?.classList.remove('bad'));
-});
-
-/* ---------- active nav highlight ---------- */
-const sections = ['services', 'results', 'testimonials', 'whitepaper', 'faq', 'contact'];
-const navMap = {};
-sections.forEach(id => {
-  const link = document.querySelector('.nav-links a[href="#' + id + '"]');
-  const sec = document.getElementById(id);
-  if (link && sec) navMap[id] = { link, sec };
-});
-const navIO = new IntersectionObserver(entries => {
-  entries.forEach(en => {
-    const item = navMap[en.target.id];
-    if (!item) return;
-    if (en.isIntersecting) {
-      Object.values(navMap).forEach(v => v.link.classList.remove('active'));
-      item.link.classList.add('active');
+      const res = await fetch('/api/cases', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: document.getElementById('cName').value,
+          email: document.getElementById('cEmail').value,
+          service: document.getElementById('cService').value,
+          message: document.getElementById('cMessage').value
+        })
+      });
+      if(!res.ok) throw new Error('Failed to submit');
+      
+      document.getElementById('toastTitle').innerText = 'Case Submitted ✔';
+      document.getElementById('toastMsg').innerText = 'We will reply within 48 hours.';
+      document.getElementById('toast').classList.add('show');
+      e.target.reset();
+      setTimeout(() => document.getElementById('toast').classList.remove('show'), 4000);
+    } catch (err) {
+      alert('Error submitting form. Please try again.');
+    } finally {
+      btn.innerText = 'Submit Free Case Review';
+      btn.disabled = false;
     }
   });
-}, { rootMargin: '-45% 0px -50% 0px' });
-Object.values(navMap).forEach(v => navIO.observe(v.sec));
 
-/* ---------- translate fallback ---------- */
-setTimeout(() => {
-  const el = $('#google_translate_element');
-  if (el && el.innerText.trim().length === 0) {
-    el.innerHTML = '<a class="lang-fallback" href="https://translate.google.com/translate?sl=auto&tl=es&u=' +
-      encodeURIComponent(location.href) + '" target="_blank" rel="noopener">Translate</a>';
+  // 5. CANVAS PARTICLES (CELL ANIMATION)
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
+  let particlesArray = [];
+  
+  function setCanvasSize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
   }
-}, 4000);
+  setCanvasSize();
+  window.addEventListener('resize', setCanvasSize);
 
-/* ---------- footer year ---------- */
-$('#year').textContent = new Date().getFullYear();
+  class Particle {
+    constructor() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.size = Math.random() * 2 + 1;
+      this.speedX = Math.random() * 1 - 0.5;
+      this.speedY = Math.random() * 1 - 0.5;
+    }
+    update() {
+      this.x += this.speedX; this.y += this.speedY;
+      if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+      if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    }
+    draw() {
+      ctx.fillStyle = 'rgba(0, 229, 160, 0.4)';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function init() {
+    particlesArray = [];
+    const count = (canvas.width * canvas.height) / 15000;
+    for (let i = 0; i < count; i++) particlesArray.push(new Particle());
+  }
+  init();
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < particlesArray.length; i++) {
+      particlesArray[i].update();
+      particlesArray[i].draw();
+      for (let j = i; j < particlesArray.length; j++) {
+        const dx = particlesArray[i].x - particlesArray[j].x;
+        const dy = particlesArray[i].y - particlesArray[j].y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < 120) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(0, 229, 160, ${1 - distance/120})`;
+          ctx.lineWidth = 0.5;
+          ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
+          ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
 </script>
+<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
